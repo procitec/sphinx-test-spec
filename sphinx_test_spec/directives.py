@@ -16,7 +16,16 @@ _module.cases = {}
 _module.actions = {}
 _module.case_id = 0
 _module.action_id = 0
-_module._node_reaction = None
+_module.node_reaction = None
+_module.node_table = None
+_module.node_table_id = None
+_module.node_thead = None
+_module.node_tgroup = None
+_module.node_tbody = None
+_module.node_thead = None
+_module.node_colspec = None
+_module.columns = 4
+_module.headers = ["id","action","reaction","ok"]
 
 class TestCaseDirective(ObjectDescription):
     """A custom directive that describes a test case in the test domain.
@@ -51,14 +60,12 @@ class TestCaseDirective(ObjectDescription):
 
     def run(self):
         env = self.env
-        classes = ["case"]
+        classes = ["test-case"]
 
         if "class" in self.options:
             classes.append(self.options["class"])
 
-        headers = []
         widths = []
-        columns = None
         case_id = None
         caption = self.arguments[0]
 
@@ -68,90 +75,67 @@ class TestCaseDirective(ObjectDescription):
         required_arguments = 1
         final_argument_whitespace = True
 
-        node_section = section = nodes.section(ids=ids)
+        node_section = nodes.section(ids=ids)
         node_section += nodes.title(text=caption)
 
         #if "id" in self.options:
         #    case_id = self.options["id"]
         #    ids.append(f"test-case-{case_id}")
-
-        node_table = nodes.table(classes=classes, ids=ids)
-
-        node_section += node_table
-
-        #if "headers" in self.options and 0 < len(self.options["headers"]):
-        #    headers = re.split(",\s{0,1}", self.options["headers"] )
-        #    logger.debug(f"found {len(headers)} entries in header")
-        #    logger.warning(f"use of headers option is deprecated, use :header-rows: instead")
-        #    columns = len(headers)
-
         #if "widths" in self.options and 0 < len(self.options["widths"]):
         #    widths = re.split(",\s{0,1}", self.options["widths"] )
         #    logger.debug(f"found {len(widths)} entries in widths")
         #    columns = len(widths)
 
-        #if "columns" in self.options:
-        #    columns = int(self.options["columns"])
-        #    if env.config.rst_table_autonumber:
-        #        columns += 1
+        logger.debug(f"create test case with {_module.columns} columns")
+        #print(f"create test case with {_module.columns} columns")
 
-        #elif "headers" not in self.options and "widths" not in self.options:
-        #    raise ExtensionError(
-        #        "could not determine number of columns from header or widths options. 'columns' options must be given"
-        #    )
-
-        #if "header-rows" in self.options:
-        #    _module.header_rows = int(self.options["header-rows"])
-        #    _module.header_rows = int(self.options["header-rows"])
-
-        columns = 4 # id, action, reaction, success
-        headers=["id","action","reaction","ok"]
         if 0 < len(env.config.testspec_header):
             if 4 == len(env.config.testspec_header):
-                headers = env.config.testspec_header
+                _module.headers = env.config.testspec_header
             else:
                 logger.error(f"lenght of config heaaders {len(env.config.testspec_header)} does not match required header length 4")
 
-        logger.debug(f"create test case with {columns} columns")
-        #print(f"create test case with {columns} columns")
-
-        #if env.config.rst_table_autonumber_reset_on_table:
-        #    _module.case_id = 0        _module.row_id += 1
-
+        if not len(_module.headers) == _module.columns:
+            logger.error(f"configured headers length {len(_module.headers)} does not match required length {_module.columns}")
 
         _module.action_id = 0
         _module.case_id += 1
 
-        node_tgroup = nodes.tgroup(cols=columns)
-        node_table += node_tgroup
+        _module.node_table = None
+        _module.node_thead = None
+        _module.node_tgroup = None
+        _module.node_tbody = None
+        _module.node_thead = None
+        _module.node_colspec = None
+        _module.node_table_id = [f"test-case-table-{caption}"]
 
-        # todo match headers and widths length to match together
-        #if 0 < len(widths):
-        #    for width in widths:
-        #        logger.debug(f"create colspec with {int(width)} column")
-        #        node_colspec = nodes.colspec(colwidth=int(width))
-        #        node_tgroup += node_colspec
-        #else:
+        _module.node_table = nodes.table(classes=["test-case-table"], ids=_module.node_table_id)
 
-        for i in range(0, columns):
-            logger.debug(f"create colspec with {int(100/columns)} column")
-            node_colspec = nodes.colspec(colwidth=int(100 / columns))
-            node_tgroup += node_colspec
+        _module.node_tgroup = nodes.tgroup(cols=_module.columns)
+        _module.node_table += _module.node_tgroup
 
-        if 0 < len(headers):
+        for i in range(0, _module.columns):
+            logger.debug(f"create colspec with {int(100/_module.columns)} column")
+            _module.node_colspec = nodes.colspec(colwidth=int(100 / _module.columns))
+            _module.node_tgroup += _module.node_colspec
+
+        if 0 < len(_module.headers):
             header_row = nodes.row()
-            for header in headers:
+            for header in _module.headers:
                 header_row += nodes.entry("", nodes.paragraph(text=header))
 
-            node_thead = nodes.thead("", header_row)
-            node_tgroup += node_thead
-            nodes_content = nodes.tbody()
-        else:
-            nodes_content = nodes.tbody();
+            _module.node_thead = nodes.thead("", header_row)
+            _module.node_tgroup += _module.node_thead
+            _module.node_tbody = nodes.tbody()
 
-        self.state.nested_parse(self.content, self.content_offset, nodes_content)
+        node_case = nodes.container()
 
-        node_tgroup += nodes_content
+        self.state.nested_parse(self.content, self.content_offset, node_case)
+
+        _module.node_tgroup += _module.node_tbody
+
+        node_section += node_case
+        node_section += _module.node_table
 
         if caption is not None or case_id is not None: #this should never occur
             test_domain = self.env.get_domain("test")
@@ -236,8 +220,9 @@ class ActionDirective(ObjectDescription):
         node_state += node_state_text
 
         node_row += node_state
+        _module.node_tbody += node_row
 
-        return [node_row]
+        return []
 
 class ReactionDirective(ObjectDescription):
     """A custom directive that describes a column in a table in the tbl domain."""
