@@ -4,6 +4,8 @@ from sphinx.directives import ObjectDescription
 from sphinx.errors import ExtensionError
 from sphinx.util import logging
 
+#logging.basicConfig(level=logging.DEBUG)
+
 logger = logging.getLogger(__name__)
 
 import sys
@@ -14,6 +16,7 @@ _module.cases = {}
 _module.actions = {}
 _module.case_id = 0
 _module.action_id = 0
+_module._node_reaction = None
 
 class TestCaseDirective(ObjectDescription):
     """A custom directive that describes a test case in the test domain.
@@ -35,7 +38,7 @@ class TestCaseDirective(ObjectDescription):
     option_spec = {
 #        "headers": directives.unchanged,
 #        "widths": directives.unchanged,
-        "title": directives.unchanged,
+#        "title": directives.unchanged,
 #        "columns": directives.unchanged,
         "class": directives.unchanged,
 #        "header-rows": int,
@@ -59,18 +62,22 @@ class TestCaseDirective(ObjectDescription):
         case_id = None
         caption = self.arguments[0]
 
-        logger.debug(f"got caption {caption}")
-        ids = [f"table-{caption}"]
+        logger.info(f"got caption {caption}")
+        ids = [f"test-case-{caption}"]
 
-        if "id" in self.options:
-            case_id = self.options["id"]
-            ids.append(f"test-case-{case_id}")
+        required_arguments = 1
+        final_argument_whitespace = True
+
+        node_section = section = nodes.section(ids=ids)
+        node_section += nodes.title(text=caption)
+
+        #if "id" in self.options:
+        #    case_id = self.options["id"]
+        #    ids.append(f"test-case-{case_id}")
 
         node_table = nodes.table(classes=classes, ids=ids)
 
-        if "title" in self.options:
-            node_caption = nodes.title(text=caption)
-            node_table += node_caption
+        node_section += node_table
 
         #if "headers" in self.options and 0 < len(self.options["headers"]):
         #    headers = re.split(",\s{0,1}", self.options["headers"] )
@@ -98,10 +105,15 @@ class TestCaseDirective(ObjectDescription):
         #    _module.header_rows = int(self.options["header-rows"])
 
         columns = 4 # id, action, reaction, success
-        headers=["id","action","reaction","success"]
+        headers=["id","action","reaction","ok"]
+        if 0 < len(env.config.testspec_header):
+            if 4 == len(env.config.testspec_header):
+                headers = env.config.testspec_header
+            else:
+                logger.error(f"lenght of config heaaders {len(env.config.testspec_header)} does not match required header length 4")
 
         logger.debug(f"create test case with {columns} columns")
-        print(f"create test case with {columns} columns")
+        #print(f"create test case with {columns} columns")
 
         #if env.config.rst_table_autonumber_reset_on_table:
         #    _module.case_id = 0        _module.row_id += 1
@@ -141,10 +153,11 @@ class TestCaseDirective(ObjectDescription):
 
         node_tgroup += nodes_content
 
-        if caption is not None or case_id is not None:
+        if caption is not None or case_id is not None: #this should never occur
             test_domain = self.env.get_domain("test")
             test_domain.add_case(caption, case_id)
-        return [node_table]
+
+        return [node_section]
 
 
 class ActionDirective(ObjectDescription):
@@ -198,21 +211,31 @@ class ActionDirective(ObjectDescription):
 
         kwargs['classes']=classes
 
-        node_id = nodes.entry(**kwargs)
+        node_id = nodes.entry(classes=["test-action-id"])
         node_id_text = nodes.Text(f"{_module.case_id}.{_module.action_id}")
         node_id += node_id_text
 
         _module.action_id += 1
 
         node_action = nodes.entry(classes=classes, ids=ids)
-
-        #node_row += node_action
-        #content_row += node_row
+        _module.node_reaction = None
 
         self.state.nested_parse(self.content, self.content_offset, node_action)
 
         node_row += node_id
         node_row += node_action
+        if _module.node_reaction is not None:
+            node_row += _module.node_reaction
+        else:
+            node_row += nodes.entry()
+
+        state_symbol= env.config.testspec_state_symbol
+
+        node_state = nodes.entry(classes=["test-action-state"])
+        node_state_text = nodes.Text(state_symbol)
+        node_state += node_state_text
+
+        node_row += node_state
 
         return [node_row]
 
@@ -241,18 +264,15 @@ class ReactionDirective(ObjectDescription):
 
         kwargs['classes']=classes
 
-        if _module.row_anchor is not None:
-            ids.append(_module.row_anchor)
-            _module.row_anchor = []
-        #if "colspan" in self.options:
-        #    morecols = int(self.options["colspan"]) - 1
-        #    kwargs['morecols']=morecols
-        #if "rowspan" in self.options:
-        #    morerows = int(self.options["rowspan"]) - 1
-        #    kwargs['morerows']=morerows
-        return []
+        # the reaction directive could occur only onces or never in an action
+        if _module.node_reaction is None:
 
-        node = nodes.entry(**kwargs)
-        # node = nodes.entry(classes=classes, ids=ids )
-        self.state.nested_parse(self.content, self.content_offset, node)
-        return [node]
+            node = nodes.entry(**kwargs)
+            # node = nodes.entry(classes=classes, ids=ids )
+            self.state.nested_parse(self.content, self.content_offset, node)
+
+            _module.node_reaction = node
+        else:
+            logger.error("reaction diretive already defined in a test::action, could occur only once!")
+
+        return []

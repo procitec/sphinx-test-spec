@@ -10,8 +10,9 @@ VERSION = 0.1
 
 
 def setup(app):
-    #app.add_config_value("rst_table_autonumber", False, "html")
-    #app.add_config_value("rst_table_autonumber_reset_on_table", True, "html")
+    app.add_config_value("testspec_state_symbol", '', "html", [str])
+    app.add_config_value("testspec_header", [], "html", [list])
+    app.add_config_value("testspec_header_widths", [], "html", [list])
 
     app.add_domain(TestSpecDomain)
 
