@@ -3,14 +3,13 @@
 Roles
 =====
 
-.. todo:: überarbeiten
+Currently no roles are provided for cross reference.
 
-For crossreference tables and table rows, ``sphinx-test-spec`` supports some roles:
+..
 
-.. rst:role:: tbl
+    For crossreference tables and table rows, ``sphinx-test-spec`` supports some roles:
 
-To add a reference to a table, add :code:`:ref:`title``
+    .. rst:role:: test:case
 
-.. rst:role:: tbl:row
+    To add a reference to a table, add :code:`:ref:`title``
 
-To add a reference to a row, add :code:`:ref:`id``

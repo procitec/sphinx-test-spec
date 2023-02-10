@@ -3,88 +3,59 @@
 Directives
 ==========
 
-.. todo:: überarbieten
-
 .. rst:directive:: :test:case
 
-    A table is added to the document with the directive `test:case`:
+    A test scenario or test case is added with this directive
 
     .. code-block:: rst
 
-        .. :tbl:tbl: Title of the Table
+        .. :test:case: Title for the Test Case
 
-    The title is required (e.g. for references). The options for the directive are:
+    The title is required (e.g. for references).
+    A section is added with this title. The sections could be numbered with the ``.. toctree`` ``:numbered:`` option.
 
     .. rubric:: Options
 
-    .. rst:directive:option:: title
-        :type: str
-        
-        If set, the title will be shown in output. Default is not to show the table title. The title
-        will be shown on top of the table. This is currently not configurable.
+    .. rst:directive:option:: class
+    :type: str
 
-    .. rst:directive:option:: columns
-        :type: int
-        
-        Number of columns. This number must only be given if not ``:headers:`` or ``:widths:`` option is used.
-        The given number of columns should be set **without** considering the ``autonumber`` column.
+    The class name for html output to use in css files. This will be appended to the directive classes.
 
-    .. rst:directive:option:: headers
-        :type: [int]
-        
-        The header columns text. The string must be comma separated (', ') and must not include quoatation marks
-        The given number of columns should be set **with** considering the ``autonumber`` column to give this column
-        also an header entry.
 
-    .. rst:directive:option:: widths
-        :type: [int]
-        
-        The columns widths in percentages. The string must be comma separated (', ').
-        The given number of widths should be set **with** considering the ``autonumber`` column to give this column
-        also an width.
+.. rst:directive:: :test:action
+
+    A test step is added with `test:action`.
+    This descripes the action the tester has to perform.
+
+    In the output this directive creates a new row in the test actions table.
+
+    .. rubric:: Options
 
     .. rst:directive:option:: class
         :type: str
 
-        The class name for html output to use in css files. By default 'tbl' is added.
+        The class name for html output to use in css files. This will be appended to the directive classes.
 
 
-.. rst:directive:: :tbl:row
+.. rst:directive:: :test:reaction
 
-A row is added to the document with the directive `tbl:row`.
-The directive requires no arguments.
+    A test reaction description is added to the output.
 
-    .. rubric:: Options
+    This directive has to occur as part of the content of a `test:action` directive.
+    This content will be added to the current `test:action` on the same row.
 
-    .. rst:directive:option:: id
-        :type: str
+    If the `test:action` has no reaction that should be mentioned, just ommit this directive.
+    An empty cell will be added in this case.
 
-        An additional id the row could be referenced.
+    .. code-block:: rst
 
-    .. rst:directive:option:: class
-        :type: str
-        
-        The class name for html output to use in css files. By default 'tbl-row' is added.
+        .. test:action:: Enter your valid password in the password field and press <enter>
 
-.. rst:directive:: :tbl:col
-
-    A column is added to the document with the directive `tbl:col`.
-    The directive requires no arguments, but the content could be given as argument (direct content after the directive on the same line)
-    or as a content block. The node is parsed recursivly for further Sphinx content.
+            .. test:reaction:: The login form dissapears and the content is shown
 
     .. rubric:: Options
 
     .. rst:directive:option:: class
         :type: str
         
-        The class name for html output to use in css files. By default 'tbl-row' is added.
-
-    .. rst:directive:option:: colspan
-        :type: int
-
-        Number of columns to span. Same meaning as the html table attribute.
-
-    .. rst:directive:option:: rowspan
-        :type: int
-
-        Number of rows to span. Same meaning as the html table attribute.
+        The class name for html output to use in css files. This will be appended to the directive classes.
