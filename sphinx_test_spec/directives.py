@@ -61,6 +61,9 @@ class TestCaseDirective(ObjectDescription):
     def run(self):
         env = self.env
         classes = ["test-case"]
+        _class_test_case_section = "test-case-section"
+        _class_test_case_content = "test-case-content"
+
 
         if "class" in self.options:
             classes.append(self.options["class"])
@@ -75,7 +78,7 @@ class TestCaseDirective(ObjectDescription):
         required_arguments = 1
         final_argument_whitespace = True
 
-        node_section = nodes.section(ids=ids)
+        node_section = nodes.section(ids=ids, classes=[_class_test_case_section])
         node_section += nodes.title(text=caption)
 
         #if "id" in self.options:
@@ -124,11 +127,11 @@ class TestCaseDirective(ObjectDescription):
             for header in _module.headers:
                 header_row += nodes.entry("", nodes.paragraph(text=header))
 
-            _module.node_thead = nodes.thead("", header_row)
+            _module.node_thead = nodes.thead("", header_row, classes=['test-case-table-head'])
             _module.node_tgroup += _module.node_thead
             _module.node_tbody = nodes.tbody()
 
-        node_case = nodes.container()
+        node_case = nodes.container(classes=[_class_test_case_content])
 
         self.state.nested_parse(self.content, self.content_offset, node_case)
 
@@ -175,6 +178,11 @@ class ActionDirective(ObjectDescription):
     def run(self):
         env = self.env
         classes =  ["test-action"]
+        _class_test_action = "test-action"
+        _class_test_action_row = _class_test_action + "-row"
+        _class_test_action_id = _class_test_action + "-id"
+        _class_test_action_state = _class_test_action + "-state"
+
 
         ids=[]
         kwargs = {}
@@ -183,19 +191,17 @@ class ActionDirective(ObjectDescription):
         if "class" in self.options:
             classes.append(self.options["classes"])
 
-        _module.row_anchor = None
-
-
-        if "id" in self.options:
-            _module.row_anchor = f"test-action-{self.options['id']}"
-            logger.debug(f"storing test action anchor test-action-{_module.row_anchor}")
+        #_module.row_anchor = None
+        #if "id" in self.options:
+        #    _module.row_anchor = f"test-action-{self.options['id']}"
+        #    logger.debug(f"storing test action anchor test-action-{_module.row_anchor}")
 
         logger.debug(f"adding test action as row with content {self.content}")
-        node_row = nodes.row(classes=['test-action-row'])
+        node_row = nodes.row(classes=[_class_test_action_row])
 
         kwargs['classes']=classes
 
-        node_id = nodes.entry(classes=["test-action-id"])
+        node_id = nodes.entry(classes=[_class_test_action_id])
         node_id_text = nodes.Text(f"{_module.case_id}.{_module.action_id}")
         node_id += node_id_text
 
@@ -215,7 +221,7 @@ class ActionDirective(ObjectDescription):
 
         state_symbol= env.config.testspec_state_symbol
 
-        node_state = nodes.entry(classes=["test-action-state"])
+        node_state = nodes.entry(classes=[_class_test_action_state])
         node_state_text = nodes.Text(state_symbol)
         node_state += node_state_text
 
