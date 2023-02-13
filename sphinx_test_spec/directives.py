@@ -24,6 +24,7 @@ _module.node_tgroup = None
 _module.node_tbody = None
 _module.node_thead = None
 _module.node_colspec = None
+_module.action_anchor = None
 _module.columns = 4
 _module.headers = ["id","action","reaction","ok"]
 
@@ -53,10 +54,6 @@ class TestCaseDirective(ObjectDescription):
 #        "header-rows": int,
     }
 
-    def handle_signature(self, sig, signode):
-        logger.debug(f"handle_signature in test case directive {sig}")
-        print(f"handle_signature in test case directive {sig}")
-
 
     def run(self):
         env = self.env
@@ -69,7 +66,7 @@ class TestCaseDirective(ObjectDescription):
             classes.append(self.options["class"])
 
         widths = []
-        case_id = None
+        #case_id = None
         caption = self.arguments[0]
 
         logger.info(f"got caption {caption}")
@@ -110,9 +107,9 @@ class TestCaseDirective(ObjectDescription):
         _module.node_tbody = None
         _module.node_thead = None
         _module.node_colspec = None
-        _module.node_table_id = [f"test-case-table-{caption}"]
+        #_module.node_table_id = [f"test-case-table-{caption}"] #no extra reference of table as role, just the section from the case
 
-        _module.node_table = nodes.table(classes=["test-case-table"], ids=_module.node_table_id)
+        _module.node_table = nodes.table(classes=["test-case-table"]) #, ids=_module.node_table_id)
 
         _module.node_tgroup = nodes.tgroup(cols=_module.columns)
         _module.node_table += _module.node_tgroup
@@ -140,9 +137,11 @@ class TestCaseDirective(ObjectDescription):
         node_section += node_case
         node_section += _module.node_table
 
-        if caption is not None or case_id is not None: #this should never occur
-            test_domain = self.env.get_domain("test")
-            test_domain.add_case(caption, case_id)
+        assert caption is not None
+
+       # if caption is not None# or case_id is not None: #this should never occur
+        test_domain = self.env.get_domain("test")
+        test_domain.add_case(caption)#, case_id)
 
         return [node_section]
 
@@ -167,13 +166,9 @@ class ActionDirective(ObjectDescription):
     has_content = True
     required_arguments = 0
     option_spec = {
-    #    "id": directives.unchanged,
-    #    "class": directives.unchanged,
+        "id": directives.unchanged,
+        "class": directives.unchanged,
     }
-
-    def handle_signature(self, sig, signode):
-        print(f"handle_signature in action directive {sig}")
-
 
     def run(self):
         env = self.env
@@ -186,28 +181,33 @@ class ActionDirective(ObjectDescription):
 
         ids=[]
         kwargs = {}
+        action_anchor = None
 
         # todo add odd/even to clases
         if "class" in self.options:
             classes.append(self.options["classes"])
 
-        #_module.row_anchor = None
-        #if "id" in self.options:
-        #    _module.row_anchor = f"test-action-{self.options['id']}"
-        #    logger.debug(f"storing test action anchor test-action-{_module.row_anchor}")
+        node_row = nodes.row(classes=[_class_test_action_row])
+
+        if "id" in self.options:
+            action_anchor = f"test-action-{_module.case_id}.{self.options['id']}"
+            #action_anchor = f"test-action-{self.options['id']}"
+            ids.append(action_anchor)
+            logger.debug(f"storing test action anchor test-action-{action_anchor}")
 
         logger.debug(f"adding test action as row with content {self.content}")
-        node_row = nodes.row(classes=[_class_test_action_row])
 
         kwargs['classes']=classes
 
-        node_id = nodes.entry(classes=[_class_test_action_id])
-        node_id_text = nodes.Text(f"{_module.case_id}.{_module.action_id}")
+        action_id_text = f"{_module.case_id}.{_module.action_id}"
+
+        node_id = nodes.entry(classes=[_class_test_action_id], ids=ids)
+        node_id_text = nodes.Text(action_id_text)
         node_id += node_id_text
 
         _module.action_id += 1
 
-        node_action = nodes.entry(classes=classes, ids=ids)
+        node_action = nodes.entry(classes=classes) #, ids=ids)
         _module.node_reaction = None
 
         self.state.nested_parse(self.content, self.content_offset, node_action)
@@ -227,6 +227,10 @@ class ActionDirective(ObjectDescription):
 
         node_row += node_state
         _module.node_tbody += node_row
+
+        if "id" in self.options:
+            test_domain = self.env.get_domain("test")
+            test_domain.add_action(_module.case_id, self.options['id'],action_id_text)
 
         return []
 
