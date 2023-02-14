@@ -18,9 +18,9 @@ While this could also be achieved using normal Sphinx or RestructuredText tables
 
 * Full content parsing of the content in the directives for ease of using custom content like
 
-    * images
-    * nested lists or tables
-    * and further sphinx features
+    - images
+    - nested lists or tables
+    - and further sphinx features
 
 While there are several frameworks available to describe tests in a better way (see Behaviour Driven Development), this extension tries to help in writing manual test specifiations in a tabular way.
 
