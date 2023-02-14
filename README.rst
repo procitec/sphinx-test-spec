@@ -44,7 +44,7 @@ While there are several frameworks available to describe tests in a better way (
 Documentation
 -------------
 
-See `doc/index.rst` for the documentation.
+See `docs/index.rst` for the documentation.
 
 Examples/Tests
 --------------
