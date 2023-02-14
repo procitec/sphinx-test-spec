@@ -1,7 +1,6 @@
 .. only:: html
 
-.. include:: ../README.md
-   :start-after: SHARED_CONTENT
+.. include:: ../README.rst
 
 .. toctree::
    :maxdepth: 2

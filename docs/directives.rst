@@ -17,7 +17,7 @@ Directives
     .. rubric:: Options
 
     .. rst:directive:option:: class
-    :type: str
+        :type: str
 
     The class name for html output to use in css files. This will be appended to the directive classes.
 

@@ -3,13 +3,8 @@
 Roles
 =====
 
-Currently no roles are provided for cross reference.
+The `Test` Domain supports following rules for crossreferencing:
 
-..
+.. rst:role:: test:case
 
-    For crossreference tables and table rows, ``sphinx-test-spec`` supports some roles:
-
-    .. rst:role:: test:case
-
-    To add a reference to a table, add :code:`:ref:`title``
-
+    To add a reference to a test case, add :code:`:test:case:`title``
