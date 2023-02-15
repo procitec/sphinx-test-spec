@@ -23,7 +23,7 @@ _module.node_thead = None
 _module.node_tgroup = None
 _module.node_tbody = None
 _module.node_thead = None
-_module.node_colspec = None
+#_module.node_colspec = None
 _module.action_anchor = None
 _module.columns = 4
 _module.headers = ["id","action","reaction","ok"]
@@ -95,6 +95,12 @@ class TestCaseDirective(ObjectDescription):
             else:
                 logger.error(f"lenght of config heaaders {len(env.config.testspec_header)} does not match required header length 4")
 
+        if 0 < len(env.config.testspec_header_widths):
+            if 4 == len(env.config.testspec_header_widths):
+                widths = env.config.testspec_header_widths
+            else:
+                logger.error(f"lenght of config heaaders widths {len(env.config.testspec_header_widths)} does not match required header length 4")
+
         if not len(_module.headers) == _module.columns:
             logger.error(f"configured headers length {len(_module.headers)} does not match required length {_module.columns}")
 
@@ -106,33 +112,44 @@ class TestCaseDirective(ObjectDescription):
         _module.node_tgroup = None
         _module.node_tbody = None
         _module.node_thead = None
-        _module.node_colspec = None
         #_module.node_table_id = [f"test-case-table-{caption}"] #no extra reference of table as role, just the section from the case
 
-        _module.node_table = nodes.table(classes=["test-case-table"]) #, ids=_module.node_table_id)
+         # class "colwidths-given" must be set since docutils-0.18.1, otherwise the table will not have
+        # any colgroup definitions.
+        class_colwidth = "colwidths-given" if 0 < len(widths) else "colwidths-auto"
+
+        _module.node_table = nodes.table(classes=["test-case-table",class_colwidth]) #, ids=_module.node_table_id)
 
         _module.node_tgroup = nodes.tgroup(cols=_module.columns)
-        _module.node_table += _module.node_tgroup
 
         for i in range(0, _module.columns):
-            logger.debug(f"create colspec with {int(100/_module.columns)} column")
-            _module.node_colspec = nodes.colspec(colwidth=int(100 / _module.columns))
-            _module.node_tgroup += _module.node_colspec
+            if 0 < len(widths):
+                node_colspec = nodes.colspec(colwidth=widths[i])
+            else:
+                node_colspec = nodes.colspec()
+
+            _module.node_tgroup += node_colspec
+
+
+        header_row = nodes.row()
 
         if 0 < len(_module.headers):
-            header_row = nodes.row()
             for header in _module.headers:
-                header_row += nodes.entry("", nodes.paragraph(text=header))
+                node_th = nodes.entry("",nodes.Text(header))
+                node_th.attributes["style"] ="width: 10%"
+                header_row += node_th
 
-            _module.node_thead = nodes.thead("", header_row, classes=['test-case-table-head'])
-            _module.node_tgroup += _module.node_thead
-            _module.node_tbody = nodes.tbody()
+        _module.node_thead = nodes.thead("", header_row, classes=['test-case-table-head'])
+
+        _module.node_tgroup += _module.node_thead
+        _module.node_tbody = nodes.tbody()
 
         node_case = nodes.container(classes=[_class_test_case_content])
 
         self.state.nested_parse(self.content, self.content_offset, node_case)
 
         _module.node_tgroup += _module.node_tbody
+        _module.node_table += _module.node_tgroup
 
         node_section += node_case
         node_section += _module.node_table
