@@ -69,14 +69,19 @@ class TestCaseDirective(ObjectDescription):
         #case_id = None
         caption = self.arguments[0]
 
-        logger.info(f"got caption {caption}")
+        self.state.inline_text(caption,0)
+
+        textnodes, messages = self.state.inline_text(
+                                      caption, self.lineno)
+
+        logger.info(f"got caption {caption} {textnodes}")
         ids = [f"test-case-{caption}"]
 
         required_arguments = 1
         final_argument_whitespace = True
 
         node_section = nodes.section(ids=ids, classes=[_class_test_case_section])
-        node_section += nodes.title(text=caption)
+        node_section += nodes.title(caption, '', *textnodes)
 
         #if "id" in self.options:
         #    case_id = self.options["id"]
@@ -87,7 +92,6 @@ class TestCaseDirective(ObjectDescription):
         #    columns = len(widths)
 
         logger.debug(f"create test case with {_module.columns} columns")
-        #print(f"create test case with {_module.columns} columns")
 
         if 0 < len(env.config.testspec_header):
             if 4 == len(env.config.testspec_header):
