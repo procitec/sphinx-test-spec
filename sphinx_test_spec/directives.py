@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 import sys
 import re
 
+#import types
+#_state = types.SimpleNameSpace
+
 _module = sys.modules[__name__]
 _module.cases = {}
 _module.actions = {}
@@ -140,7 +143,6 @@ class TestCaseDirective(ObjectDescription):
         if 0 < len(_module.headers):
             for header in _module.headers:
                 node_th = nodes.entry("",nodes.Text(header))
-                node_th.attributes["style"] ="width: 10%"
                 header_row += node_th
 
         _module.node_thead = nodes.thead("", header_row, classes=['test-case-table-head'])

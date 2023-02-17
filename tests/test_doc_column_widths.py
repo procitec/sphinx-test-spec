@@ -14,5 +14,5 @@ def test_doc_column_widths(test_app):
     html = Path(app.outdir, "index.html").read_text()
 
     assert "<colgroup>" in html
-    assert 2 == html.count('<col style="width: 10%" />')
-    assert 2 == html.count('<col style="width: 40%" />')
+    assert 2 == html.count('<col style="width: 10.0%" />')
+    assert 2 == html.count('<col style="width: 40.0%" />')
