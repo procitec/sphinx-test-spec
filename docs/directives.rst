@@ -59,3 +59,21 @@ Directives
         :type: str
         
         The class name for html output to use in css files. This will be appended to the directive classes.
+
+
+.. rst:directive:: :test:filelist
+
+    A list with all referenced files is added in place of the directive. The files are shown as list with path normalised to posix paths.
+
+    .. rubric:: Options
+
+    .. rst:directive:option:: filter
+        :type: str
+
+        Allows filtering of referenced files by one of ['name', 'suffix', 'parent'] according to `pathlib <https://docs.python.org/3/library/pathlib.html>`_.
+
+
+    .. rst:directive:option:: class
+        :type: str
+
+        The class name for html output to use in css files. This will be appended to the directive classes.

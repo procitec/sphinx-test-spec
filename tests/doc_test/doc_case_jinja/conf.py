@@ -4,7 +4,8 @@ extensions = ["sphinx_test_spec"]
 
 test_dir = os.path.dirname(__file__)
 
-def testspec_code (filter_string):
+
+def testspec_code(filter_string):
     table = f"""
     .. code-block::
 
@@ -13,9 +14,8 @@ def testspec_code (filter_string):
     """
     return table
 
-testspec_context = {
-    "testspec_code" : testspec_code
-}
+
+testspec_context = {"testspec_code": testspec_code}
 
 # General information about the project.
 project = "sphinx-test-spec test docs"
@@ -39,7 +39,7 @@ release = "1.0"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'en'
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

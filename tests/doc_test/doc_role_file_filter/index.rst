@@ -16,4 +16,4 @@ Appendix
 --------
 
 .. test:filelist::
-
+    :filter: '.zvd' in suffix

@@ -3,13 +3,15 @@ from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.errors import ExtensionError
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxDirective
 
-#logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
-import sys
 import re
+import sys
+
 
 class TestCaseDirective(ObjectDescription):
     """A custom directive that describes a test case in the test domain.
@@ -29,14 +31,13 @@ class TestCaseDirective(ObjectDescription):
     has_content = True
     required_arguments = 1
     option_spec = {
-#        "headers": directives.unchanged,
-#        "widths": directives.unchanged,
-#        "title": directives.unchanged,
-#        "columns": directives.unchanged,
+        #        "headers": directives.unchanged,
+        #        "widths": directives.unchanged,
+        #        "title": directives.unchanged,
+        #        "columns": directives.unchanged,
         "class": directives.unchanged,
-#        "header-rows": int,
+        #        "header-rows": int,
     }
-
 
     def run(self):
         env = self.env
@@ -44,21 +45,18 @@ class TestCaseDirective(ObjectDescription):
         _class_test_case_section = "test-case-section"
         _class_test_case_content = "test-case-content"
 
-
         if "class" in self.options:
             classes.append(self.options["class"])
 
         widths = []
-        #case_id = None
+        # case_id = None
         caption = self.arguments[0]
         test_domain = self.env.get_domain("test")
-        _state = test_domain._state
+        _state = test_domain.data["state"]
 
+        self.state.inline_text(caption, 0)
 
-        self.state.inline_text(caption,0)
-
-        textnodes, messages = self.state.inline_text(
-                                      caption, self.lineno)
+        textnodes, messages = self.state.inline_text(caption, self.lineno)
 
         logger.info(f"got caption {caption} {textnodes}")
         ids = [f"test-case-{caption}"]
@@ -67,12 +65,12 @@ class TestCaseDirective(ObjectDescription):
         final_argument_whitespace = True
 
         node_section = nodes.section(ids=ids, classes=[_class_test_case_section])
-        node_section += nodes.title(caption, '', *textnodes)
+        node_section += nodes.title(caption, "", *textnodes)
 
-        #if "id" in self.options:
+        # if "id" in self.options:
         #    case_id = self.options["id"]
         #    ids.append(f"test-case-{case_id}")
-        #if "widths" in self.options and 0 < len(self.options["widths"]):
+        # if "widths" in self.options and 0 < len(self.options["widths"]):
         #    widths = re.split(",\s{0,1}", self.options["widths"] )
         #    logger.debug(f"found {len(widths)} entries in widths")
         #    columns = len(widths)
@@ -83,18 +81,22 @@ class TestCaseDirective(ObjectDescription):
             if 4 == len(env.config.testspec_header):
                 _state.headers = env.config.testspec_header
             else:
-                logger.error(f"lenght of config heaaders {len(env.config.testspec_header)} does not match required header length 4")
+                logger.error(
+                    f"lenght of config heaaders {len(env.config.testspec_header)} does not match required header length 4"
+                )
 
         if 0 < len(env.config.testspec_header_widths):
             if 4 == len(env.config.testspec_header_widths):
                 widths = env.config.testspec_header_widths
             else:
-                logger.error(f"lenght of config heaaders widths {len(env.config.testspec_header_widths)} does not match required header length 4")
+                logger.error(
+                    f"lenght of config heaaders widths {len(env.config.testspec_header_widths)} does not match required header length 4"
+                )
 
         if not len(_state.headers) == _state.columns:
-            logger.error(f"configured headers length {len(_state.headers)} does not match required length {_state.columns}")
-
-
+            logger.error(
+                f"configured headers length {len(_state.headers)} does not match required length {_state.columns}"
+            )
 
         _state.action_id = 0
         _state.case_id += 1
@@ -104,13 +106,13 @@ class TestCaseDirective(ObjectDescription):
         _state.node_tgroup = None
         _state.node_tbody = None
         _state.node_thead = None
-        #_state.node_table_id = [f"test-case-table-{caption}"] #no extra reference of table as role, just the section from the case
+        # _state.node_table_id = [f"test-case-table-{caption}"] #no extra reference of table as role, just the section from the case
 
-         # class "colwidths-given" must be set since docutils-0.18.1, otherwise the table will not have
+        # class "colwidths-given" must be set since docutils-0.18.1, otherwise the table will not have
         # any colgroup definitions.
         class_colwidth = "colwidths-given" if 0 < len(widths) else "colwidths-auto"
 
-        _state.node_table = nodes.table(classes=["test-case-table",class_colwidth]) #, ids=_state.node_table_id)
+        _state.node_table = nodes.table(classes=["test-case-table", class_colwidth])  # , ids=_state.node_table_id)
 
         _state.node_tgroup = nodes.tgroup(cols=_state.columns)
 
@@ -122,15 +124,14 @@ class TestCaseDirective(ObjectDescription):
 
             _state.node_tgroup += node_colspec
 
-
         header_row = nodes.row()
 
         if 0 < len(_state.headers):
             for header in _state.headers:
-                node_th = nodes.entry("",nodes.Text(header))
+                node_th = nodes.entry("", nodes.Text(header))
                 header_row += node_th
 
-        _state.node_thead = nodes.thead("", header_row, classes=['test-case-table-head'])
+        _state.node_thead = nodes.thead("", header_row, classes=["test-case-table-head"])
 
         _state.node_tgroup += _state.node_thead
         _state.node_tbody = nodes.tbody()
@@ -147,9 +148,8 @@ class TestCaseDirective(ObjectDescription):
 
         assert caption is not None
 
-       # if caption is not None# or case_id is not None: #this should never occur
-        test_domain = self.env.get_domain("test")
-        test_domain.add_case(caption)#, case_id)
+        # if caption is not None# or case_id is not None: #this should never occur
+        test_domain.add_case(caption)  # , case_id)
 
         return [node_section]
 
@@ -180,19 +180,18 @@ class ActionDirective(ObjectDescription):
 
     def run(self):
         env = self.env
-        classes =  ["test-action"]
+        classes = ["test-action"]
         _class_test_action = "test-action"
         _class_test_action_row = _class_test_action + "-row"
         _class_test_action_id = _class_test_action + "-id"
         _class_test_action_state = _class_test_action + "-state"
 
-
-        ids=[]
+        ids = []
         kwargs = {}
         action_anchor = None
         test_domain = self.env.get_domain("test")
 
-        _state = test_domain._state
+        _state = test_domain.data["state"]
 
         # todo add odd/even to clases
         if "class" in self.options:
@@ -202,13 +201,13 @@ class ActionDirective(ObjectDescription):
 
         if "id" in self.options:
             action_anchor = f"test-action-{_state.case_id}.{self.options['id']}"
-            #action_anchor = f"test-action-{self.options['id']}"
+            # action_anchor = f"test-action-{self.options['id']}"
             ids.append(action_anchor)
             logger.debug(f"storing test action anchor test-action-{action_anchor}")
 
         logger.debug(f"adding test action as row with content {self.content}")
 
-        kwargs['classes']=classes
+        kwargs["classes"] = classes
 
         action_id_text = f"{_state.case_id}.{_state.action_id}"
 
@@ -218,7 +217,7 @@ class ActionDirective(ObjectDescription):
 
         _state.action_id += 1
 
-        node_action = nodes.entry(classes=classes) #, ids=ids)
+        node_action = nodes.entry(classes=classes)  # , ids=ids)
         _state.node_reaction = None
 
         self.state.nested_parse(self.content, self.content_offset, node_action)
@@ -230,7 +229,7 @@ class ActionDirective(ObjectDescription):
         else:
             node_row += nodes.entry()
 
-        state_symbol= env.config.testspec_state_symbol
+        state_symbol = env.config.testspec_state_symbol
 
         node_state = nodes.entry(classes=[_class_test_action_state])
         node_state_text = nodes.Text(state_symbol)
@@ -240,10 +239,10 @@ class ActionDirective(ObjectDescription):
         _state.node_tbody += node_row
 
         if "id" in self.options:
-            test_domain = self.env.get_domain("test")
-            test_domain.add_action(_state.case_id, self.options['id'],action_id_text)
+            test_domain.add_action(_state.case_id, self.options["id"], action_id_text)
 
         return []
+
 
 class ReactionDirective(ObjectDescription):
     """A custom directive that describes a column in a table in the tbl domain."""
@@ -252,14 +251,13 @@ class ReactionDirective(ObjectDescription):
     required_arguments = 0
     option_spec = {
         "class": directives.unchanged,
-#        "colspan": int,
-#        "rowspan": int,
+        #        "colspan": int,
+        #        "rowspan": int,
     }
 
     def run(self):
         kwargs = {}
-        classes =  ["test-reaction"]
-
+        classes = ["test-reaction"]
 
         # todo add odd/even to clases
         if "class" in self.options:
@@ -270,9 +268,9 @@ class ReactionDirective(ObjectDescription):
         ids = []
         test_domain = self.env.get_domain("test")
 
-        _state = test_domain._state
+        _state = test_domain.data["state"]
 
-        kwargs['classes']=classes
+        kwargs["classes"] = classes
 
         # the reaction directive could occur only onces or never in an action
         if _state.node_reaction is None:
@@ -286,3 +284,41 @@ class ReactionDirective(ObjectDescription):
             logger.error("reaction diretive already defined in a test::action, could occur only once!")
 
         return []
+
+
+class FileListDirective(SphinxDirective):
+
+    has_content = False
+    required_arguments = 0
+    option_spec = {
+        "filter": directives.unchanged,
+        "class": directives.unchanged,
+    }
+
+    def run(self):
+        logger.debug(f"adding test filelist")
+        test_domain = self.env.get_domain("test")
+        _files = test_domain.data["files"]
+        _content = []
+        _classes = ["test-filelist"]
+
+        if "filter" in self.options:
+            filter_string = self.options["filter"]
+
+            for (k, v) in _files.items():
+                name = v["name"]
+                suffix = v["suffix"]
+                if bool(eval(filter_string, None, locals())):
+                    _content.append(k)
+        else:
+            for (k, v) in _files.items():
+                _content.append(k)
+
+        if "class" in self.options:
+            _classes.append(self.options["classes"])
+
+        listnode = nodes.bullet_list(classes=_classes)
+        for entry in _content:
+            listnode += nodes.list_item("", nodes.Text(entry), classes=["test-filelist-item"])
+
+        return [listnode]

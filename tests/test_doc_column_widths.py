@@ -7,7 +7,10 @@ logger = logging.getLogger(__name__)
 
 import sys
 
-@pytest.mark.parametrize("test_app", [{"buildername": "html", "srcdir": "doc_test/doc_column_widths", "warnings": sys.stderr}], indirect=True)
+
+@pytest.mark.parametrize(
+    "test_app", [{"buildername": "html", "srcdir": "doc_test/doc_column_widths", "warnings": sys.stderr}], indirect=True
+)
 def test_doc_column_widths(test_app):
     app = test_app
     app.build()

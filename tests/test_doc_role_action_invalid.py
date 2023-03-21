@@ -7,7 +7,12 @@ logger = logging.getLogger(__name__)
 
 import sys
 
-@pytest.mark.parametrize("test_app", [{"buildername": "html", "srcdir": "doc_test/doc_role_action_invalid", "warnings": sys.stderr}], indirect=True)
+
+@pytest.mark.parametrize(
+    "test_app",
+    [{"buildername": "html", "srcdir": "doc_test/doc_role_action_invalid", "warnings": sys.stderr}],
+    indirect=True,
+)
 def test_doc_role_action_invalid(test_app):
     app = test_app
     app.build()

@@ -9,9 +9,11 @@ import sys
 
 
 @pytest.mark.parametrize(
-    "test_app", [{"buildername": "html", "srcdir": "doc_test/doc_role_file", "warnings": sys.stderr}], indirect=True
+    "test_app",
+    [{"buildername": "html", "srcdir": "doc_test/doc_role_file_filter", "warnings": sys.stderr}],
+    indirect=True,
 )
-def test_doc_role_file(test_app):
+def test_doc_role_file_filter(test_app):
     app = test_app
     app.build()
     html = Path(app.outdir, "index.html").read_text()
@@ -20,7 +22,8 @@ def test_doc_role_file(test_app):
     warnings = warning.getvalue()
 
     assert "ERROR" not in warnings
+    assert 1 == html.count("example.wav")
     assert 2 == html.count("example.zvd")
-    assert 2 == html.count("example.wav")
+
     assert 1 == html.count('<li class="test-filelist-item">example.zvd</li>')
-    assert 1 == html.count('<li class="test-filelist-item">example.wav</li>')
+    assert 0 == html.count('<li class="test-filelist-item">example.wav</li>')
