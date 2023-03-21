@@ -16,7 +16,6 @@ def rst_testspec_jinja(app, docname, source):
     """
     # Make sure we're outputting HTML
     if not hasattr(app.builder, 'templates'):
-        source[0]=''
         return
 
     src = source[0]
