@@ -11,26 +11,6 @@ logger = logging.getLogger(__name__)
 import sys
 import re
 
-#import types
-#_state = types.SimpleNameSpace
-
-_module = sys.modules[__name__]
-_module.cases = {}
-_module.actions = {}
-_module.case_id = 0
-_module.action_id = 0
-_module.node_reaction = None
-_module.node_table = None
-_module.node_table_id = None
-_module.node_thead = None
-_module.node_tgroup = None
-_module.node_tbody = None
-_module.node_thead = None
-#_module.node_colspec = None
-_module.action_anchor = None
-_module.columns = 4
-_module.headers = ["id","action","reaction","ok"]
-
 class TestCaseDirective(ObjectDescription):
     """A custom directive that describes a test case in the test domain.
 
@@ -71,6 +51,9 @@ class TestCaseDirective(ObjectDescription):
         widths = []
         #case_id = None
         caption = self.arguments[0]
+        test_domain = self.env.get_domain("test")
+        _state = test_domain._state
+
 
         self.state.inline_text(caption,0)
 
@@ -94,11 +77,11 @@ class TestCaseDirective(ObjectDescription):
         #    logger.debug(f"found {len(widths)} entries in widths")
         #    columns = len(widths)
 
-        logger.debug(f"create test case with {_module.columns} columns")
+        logger.debug(f"create test case with {_state.columns} columns")
 
         if 0 < len(env.config.testspec_header):
             if 4 == len(env.config.testspec_header):
-                _module.headers = env.config.testspec_header
+                _state.headers = env.config.testspec_header
             else:
                 logger.error(f"lenght of config heaaders {len(env.config.testspec_header)} does not match required header length 4")
 
@@ -108,57 +91,59 @@ class TestCaseDirective(ObjectDescription):
             else:
                 logger.error(f"lenght of config heaaders widths {len(env.config.testspec_header_widths)} does not match required header length 4")
 
-        if not len(_module.headers) == _module.columns:
-            logger.error(f"configured headers length {len(_module.headers)} does not match required length {_module.columns}")
+        if not len(_state.headers) == _state.columns:
+            logger.error(f"configured headers length {len(_state.headers)} does not match required length {_state.columns}")
 
-        _module.action_id = 0
-        _module.case_id += 1
 
-        _module.node_table = None
-        _module.node_thead = None
-        _module.node_tgroup = None
-        _module.node_tbody = None
-        _module.node_thead = None
-        #_module.node_table_id = [f"test-case-table-{caption}"] #no extra reference of table as role, just the section from the case
+
+        _state.action_id = 0
+        _state.case_id += 1
+
+        _state.node_table = None
+        _state.node_thead = None
+        _state.node_tgroup = None
+        _state.node_tbody = None
+        _state.node_thead = None
+        #_state.node_table_id = [f"test-case-table-{caption}"] #no extra reference of table as role, just the section from the case
 
          # class "colwidths-given" must be set since docutils-0.18.1, otherwise the table will not have
         # any colgroup definitions.
         class_colwidth = "colwidths-given" if 0 < len(widths) else "colwidths-auto"
 
-        _module.node_table = nodes.table(classes=["test-case-table",class_colwidth]) #, ids=_module.node_table_id)
+        _state.node_table = nodes.table(classes=["test-case-table",class_colwidth]) #, ids=_state.node_table_id)
 
-        _module.node_tgroup = nodes.tgroup(cols=_module.columns)
+        _state.node_tgroup = nodes.tgroup(cols=_state.columns)
 
-        for i in range(0, _module.columns):
+        for i in range(0, _state.columns):
             if 0 < len(widths):
                 node_colspec = nodes.colspec(colwidth=widths[i])
             else:
                 node_colspec = nodes.colspec()
 
-            _module.node_tgroup += node_colspec
+            _state.node_tgroup += node_colspec
 
 
         header_row = nodes.row()
 
-        if 0 < len(_module.headers):
-            for header in _module.headers:
+        if 0 < len(_state.headers):
+            for header in _state.headers:
                 node_th = nodes.entry("",nodes.Text(header))
                 header_row += node_th
 
-        _module.node_thead = nodes.thead("", header_row, classes=['test-case-table-head'])
+        _state.node_thead = nodes.thead("", header_row, classes=['test-case-table-head'])
 
-        _module.node_tgroup += _module.node_thead
-        _module.node_tbody = nodes.tbody()
+        _state.node_tgroup += _state.node_thead
+        _state.node_tbody = nodes.tbody()
 
         node_case = nodes.container(classes=[_class_test_case_content])
 
         self.state.nested_parse(self.content, self.content_offset, node_case)
 
-        _module.node_tgroup += _module.node_tbody
-        _module.node_table += _module.node_tgroup
+        _state.node_tgroup += _state.node_tbody
+        _state.node_table += _state.node_tgroup
 
         node_section += node_case
-        node_section += _module.node_table
+        node_section += _state.node_table
 
         assert caption is not None
 
@@ -205,6 +190,9 @@ class ActionDirective(ObjectDescription):
         ids=[]
         kwargs = {}
         action_anchor = None
+        test_domain = self.env.get_domain("test")
+
+        _state = test_domain._state
 
         # todo add odd/even to clases
         if "class" in self.options:
@@ -213,7 +201,7 @@ class ActionDirective(ObjectDescription):
         node_row = nodes.row(classes=[_class_test_action_row])
 
         if "id" in self.options:
-            action_anchor = f"test-action-{_module.case_id}.{self.options['id']}"
+            action_anchor = f"test-action-{_state.case_id}.{self.options['id']}"
             #action_anchor = f"test-action-{self.options['id']}"
             ids.append(action_anchor)
             logger.debug(f"storing test action anchor test-action-{action_anchor}")
@@ -222,23 +210,23 @@ class ActionDirective(ObjectDescription):
 
         kwargs['classes']=classes
 
-        action_id_text = f"{_module.case_id}.{_module.action_id}"
+        action_id_text = f"{_state.case_id}.{_state.action_id}"
 
         node_id = nodes.entry(classes=[_class_test_action_id], ids=ids)
         node_id_text = nodes.Text(action_id_text)
         node_id += node_id_text
 
-        _module.action_id += 1
+        _state.action_id += 1
 
         node_action = nodes.entry(classes=classes) #, ids=ids)
-        _module.node_reaction = None
+        _state.node_reaction = None
 
         self.state.nested_parse(self.content, self.content_offset, node_action)
 
         node_row += node_id
         node_row += node_action
-        if _module.node_reaction is not None:
-            node_row += _module.node_reaction
+        if _state.node_reaction is not None:
+            node_row += _state.node_reaction
         else:
             node_row += nodes.entry()
 
@@ -249,11 +237,11 @@ class ActionDirective(ObjectDescription):
         node_state += node_state_text
 
         node_row += node_state
-        _module.node_tbody += node_row
+        _state.node_tbody += node_row
 
         if "id" in self.options:
             test_domain = self.env.get_domain("test")
-            test_domain.add_action(_module.case_id, self.options['id'],action_id_text)
+            test_domain.add_action(_state.case_id, self.options['id'],action_id_text)
 
         return []
 
@@ -272,6 +260,7 @@ class ReactionDirective(ObjectDescription):
         kwargs = {}
         classes =  ["test-reaction"]
 
+
         # todo add odd/even to clases
         if "class" in self.options:
             classes.append(self.options["classes"])
@@ -279,17 +268,20 @@ class ReactionDirective(ObjectDescription):
         logger.debug(f"adding test reaction with content {self.content}")
         self.assert_has_content()
         ids = []
+        test_domain = self.env.get_domain("test")
+
+        _state = test_domain._state
 
         kwargs['classes']=classes
 
         # the reaction directive could occur only onces or never in an action
-        if _module.node_reaction is None:
+        if _state.node_reaction is None:
 
             node = nodes.entry(**kwargs)
             # node = nodes.entry(classes=classes, ids=ids )
             self.state.nested_parse(self.content, self.content_offset, node)
 
-            _module.node_reaction = node
+            _state.node_reaction = node
         else:
             logger.error("reaction diretive already defined in a test::action, could occur only once!")
 

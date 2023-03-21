@@ -8,6 +8,8 @@ from sphinx.util import ws_re
 from sphinx.locale import get_translation
 from docutils.parsers.rst import nodes
 
+import types
+
 MESSAGE_CATALOG_NAME = 'sphinx_test_spec'
 _ = get_translation(MESSAGE_CATALOG_NAME)
 
@@ -77,6 +79,23 @@ class TestSpecDomain(Domain):
     label = "Test Specifications"
     roles = {"case": XRefRole(), "action":XRefRole()}
  #   roles = {"case": XRefRole(), "action":ActionRole()}
+    _state = types.SimpleNamespace (
+        cases = {}
+        , actions = {}
+        , case_id = 0
+        , action_id = 0
+        , node_reaction = None
+        , node_table = None
+        , node_table_id = None
+        , node_tgroup = None
+        , node_tbody = None
+        , node_thead = None
+        #, node_colspec = None
+        , action_anchor = None
+        , columns = 4
+        , headers = ["id","action","reaction","ok"]
+    )
+
 
     directives = {
         "case": TestCaseDirective,
@@ -91,6 +110,11 @@ class TestSpecDomain(Domain):
         "cases": [],  # object list
         "actions": [],  # object list
     }
+
+    def setup(self):
+        super().setup()
+        self._state.case_id = 0
+
 
     def get_full_qualified_name(self, node):
         return "{}.{}".format("test_case", node.arguments[0])
