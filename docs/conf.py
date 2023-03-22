@@ -29,6 +29,7 @@ author = 'team procitec'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_immaterial'
 #    'sphinx.ext.autosectionlabel'
 ]
 
@@ -45,7 +46,7 @@ exclude_patterns = ['_build', 'Thumbs.db']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_immaterial'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -54,16 +55,58 @@ html_theme = 'alabaster'
 
 html_sidebars = {'**': ['about.html', 'navigation.html', 'searchbox.html'], }
 
+#html_theme_options = {
+    ## 'description': "an extension for sphinx",
+    #'logo_text_align': "center",
+    #'github_user': 'procitec',
+    #'github_repo': 'sphinx-test-spec',
+    #'github_banner': True,
+    #'github_button': True,
+    #'github_type': 'star',
+    #'fixed_sidebar': True,
+    #'extra_nav_links': {
+                        #'sphinx-test-spec@github': "https://github.com/procitec/sphinx-test-spec",
+                        #}
+#}
+
+
 html_theme_options = {
-    # 'description': "an extension for sphinx",
-    'logo_text_align': "center",
-    'github_user': 'procitec',
-    'github_repo': 'sphinx-test-spec',
-    'github_banner': True,
-    'github_button': True,
-    'github_type': 'star',
-    'fixed_sidebar': True,
-    'extra_nav_links': {
-                        'sphinx-test-spec@github': "https://github.com/procitec/sphinx-test-spec",
-                        }
+    "icon": {
+        "repo": "fontawesome/brands/github",
+    },
+    "site_url": "https://github.com/procitec/sphinx-test-spec",
+    "repo_url": "https://github.com/procitec/sphinx-test-spec",
+    "repo_name": "sphinx-test-spec",
+    "repo_type": "github",
+    "edit_uri": "blob/master/docs",
+    # "google_analytics": ["UA-XXXXX", "auto"],
+    "globaltoc_collapse": True,
+    "features": [
+        "navigation.sections",
+        "navigation.top",
+        "search.share",
+    ],
+    "palette": [
+        {
+            "media": "(prefers-color-scheme: light)",
+            "scheme": "default",
+            "primary": "blue",
+            "accent": "light-blue",
+            "toggle": {
+                "icon": "material/weather-night",
+                "name": "Switch to dark mode",
+            },
+        },
+        {
+            "media": "(prefers-color-scheme: dark)",
+            "scheme": "slate",
+            "primary": "blue",
+            "accent": "yellow",
+            "toggle": {
+                "icon": "material/weather-sunny",
+                "name": "Switch to light mode",
+            },
+        },
+    ],
+    "toc_title_is_page_title": True,
 }

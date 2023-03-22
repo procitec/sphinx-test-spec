@@ -1,19 +1,12 @@
 .. only:: html
 
-.. include:: ../README.rst
+   .. include:: ../README.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :hidden:
 
    directives
    configuration
    roles
    changelog
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
