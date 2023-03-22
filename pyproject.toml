@@ -2,7 +2,7 @@
 name = "sphinx-test-spec"
 
 # !! Don't miss updates in setup.py or related files !!!
-version = "0.0.1"
+version = "0.1.0"
 
 description = "Sphinx extension definition of manual test specifications"
 authors = ["team procitec <info@procitec.de>"]

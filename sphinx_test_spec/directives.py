@@ -106,13 +106,13 @@ class TestCaseDirective(ObjectDescription):
         _state.node_tgroup = None
         _state.node_tbody = None
         _state.node_thead = None
-        # _state.node_table_id = [f"test-case-table-{caption}"] #no extra reference of table as role, just the section from the case
+        # _state.node_table_id = [f"test-case-{caption}"] #no extra reference of table as role, just the section from the case
 
         # class "colwidths-given" must be set since docutils-0.18.1, otherwise the table will not have
         # any colgroup definitions.
         class_colwidth = "colwidths-given" if 0 < len(widths) else "colwidths-auto"
 
-        _state.node_table = nodes.table(classes=["test-case-table", class_colwidth])  # , ids=_state.node_table_id)
+        _state.node_table = nodes.table(classes=["test-case", class_colwidth])  # , ids=_state.node_table_id)
 
         _state.node_tgroup = nodes.tgroup(cols=_state.columns)
 
@@ -131,7 +131,7 @@ class TestCaseDirective(ObjectDescription):
                 node_th = nodes.entry("", nodes.Text(header))
                 header_row += node_th
 
-        _state.node_thead = nodes.thead("", header_row, classes=["test-case-table-head"])
+        _state.node_thead = nodes.thead("", header_row, classes=["test-case-head"])
 
         _state.node_tgroup += _state.node_thead
         _state.node_tbody = nodes.tbody()
@@ -182,7 +182,7 @@ class ActionDirective(ObjectDescription):
         env = self.env
         classes = ["test-action"]
         _class_test_action = "test-action"
-        _class_test_action_row = _class_test_action + "-row"
+        _class_test_action_row = _class_test_action
         _class_test_action_id = _class_test_action + "-id"
         _class_test_action_state = _class_test_action + "-state"
 

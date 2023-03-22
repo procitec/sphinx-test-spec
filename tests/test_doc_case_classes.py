@@ -19,14 +19,14 @@ def test_case_classes(test_app):
     assert html.count("<tr class=") == 3
     assert html.count("<table class=") == 1
 
-    assert '<table class="test-case-table' in html
-    assert html.count('<tr class="test-action-row') == 2
+    assert '<table class="test-case' in html
+    assert html.count('<tr class="test-action') == 2
     assert html.count('<td class="test-action">') == 2
     assert html.count('<td class="test-reaction">') == 2
     assert html.count('<td class="test-action-state">') == 2
 
     assert html.count('<section class="test-case-section"') == 1
-    assert html.count('<thead class="test-case-table-head">') == 1
+    assert html.count('<thead class="test-case-head">') == 1
 
     assert (
         '<div class="test-case-content docutils container">\n<p>This is free text before the table after the title</p>\n</div>'

@@ -18,7 +18,7 @@ def test_doc_short_example(test_app):
 
     assert "<h2>Summarize and Clear values in calculator" in html
 
-    assert '<tr class="test-action-row row-even"><td class="test-action-id">1.0</td>' in html
+    assert '<tr class="test-action row-even"><td class="test-action-id">1.0</td>' in html
     assert '<td class="test-action"><p>Type ‘2+2’ into your systems calculator app and press ‘&lt;enter&gt;’.' in html
     assert "The calculator sums and shows you ‘4’ as result.</p></td>" in html
     assert html.count("<tr class=") == 3
