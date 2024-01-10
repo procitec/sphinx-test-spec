@@ -112,7 +112,7 @@ class TestCaseDirective(ObjectDescription):
         # any colgroup definitions.
         class_colwidth = "colwidths-given" if 0 < len(widths) else "colwidths-auto"
 
-        _state.node_table = nodes.table(classes=["test-case", class_colwidth])  # , ids=_state.node_table_id)
+        _state.node_table = nodes.table(classes=classes + [class_colwidth])  # , ids=_state.node_table_id)
 
         _state.node_tgroup = nodes.tgroup(cols=_state.columns)
 
@@ -195,7 +195,7 @@ class ActionDirective(ObjectDescription):
 
         # todo add odd/even to clases
         if "class" in self.options:
-            classes.append(self.options["classes"])
+            classes.append(self.options["class"])
 
         node_row = nodes.row(classes=[_class_test_action_row])
 
@@ -261,7 +261,7 @@ class ReactionDirective(ObjectDescription):
 
         # todo add odd/even to clases
         if "class" in self.options:
-            classes.append(self.options["classes"])
+            classes.append(self.options["class"])
 
         logger.debug(f"adding test reaction with content {self.content}")
         self.assert_has_content()
@@ -274,7 +274,6 @@ class ReactionDirective(ObjectDescription):
 
         # the reaction directive could occur only onces or never in an action
         if _state.node_reaction is None:
-
             node = nodes.entry(**kwargs)
             # node = nodes.entry(classes=classes, ids=ids )
             self.state.nested_parse(self.content, self.content_offset, node)
@@ -287,7 +286,6 @@ class ReactionDirective(ObjectDescription):
 
 
 class FileListDirective(SphinxDirective):
-
     has_content = False
     required_arguments = 0
     option_spec = {
@@ -305,17 +303,17 @@ class FileListDirective(SphinxDirective):
         if "filter" in self.options:
             filter_string = self.options["filter"]
 
-            for (k, v) in _files.items():
+            for k, v in _files.items():
                 name = v["name"]
                 suffix = v["suffix"]
                 if bool(eval(filter_string, None, locals())):
                     _content.append(k)
         else:
-            for (k, v) in _files.items():
+            for k, v in _files.items():
                 _content.append(k)
 
         if "class" in self.options:
-            _classes.append(self.options["classes"])
+            _classes.append(self.options["class"])
 
         listnode = nodes.bullet_list(classes=_classes)
         for entry in _content:

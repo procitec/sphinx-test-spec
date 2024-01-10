@@ -81,7 +81,6 @@ class FileRole(EmphasizedLiteral):
 
 
 class TestSpecDomain(Domain):
-
     name = "test"
     label = "Test Specifications"
     roles = {"case": XRefRole(), "action": XRefRole(), "file": FileRole()}

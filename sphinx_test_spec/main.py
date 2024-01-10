@@ -15,14 +15,13 @@ def rst_testspec_jinja(app, docname, source):
     Render our pages as a jinja template for fancy templating goodness.
     """
     # Make sure we're outputting HTML
-    if not hasattr(app.builder, 'templates'):
+    if not hasattr(app.builder, "templates"):
         return
 
     src = source[0]
-    rendered = app.builder.templates.render_string(
-        src, app.config.testspec_context
-    )
+    rendered = app.builder.templates.render_string(src, app.config.testspec_context)
     source[0] = rendered
+
 
 def setup(app):
     app.add_config_value("testspec_state_symbol", "", "html", [str])
