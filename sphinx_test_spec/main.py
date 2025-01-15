@@ -4,10 +4,11 @@ import sphinx
 from pkg_resources import parse_version
 from sphinx.util import logging
 
+from sphinx_test_spec.builder import TestSpecBuilder, build_testspec_json
 from sphinx_test_spec.domain import MESSAGE_CATALOG_NAME, TestSpecDomain
 
 LOG = logging.getLogger(__name__)
-VERSION = 0.1
+VERSION = 25.1
 
 
 def rst_testspec_jinja(app, docname, source):
@@ -31,7 +32,10 @@ def setup(app):
 
     app.add_domain(TestSpecDomain)
 
+    app.add_builder(TestSpecBuilder)
+
     app.connect("source-read", rst_testspec_jinja)
+    app.connect("build-finished", build_testspec_json)
 
     package_dir = os.path.abspath(os.path.dirname(__file__))
     locale_dir = os.path.join(package_dir, "locales")

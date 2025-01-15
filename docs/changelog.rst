@@ -1,12 +1,8 @@
 Changelog
 =========
 
-0.1.0
------
+25.1
+----
 
-* First release ready for productive use
-
-0.0.1
------
-
-* Initial version with basic feature set.
+- Creation of "testspec.json" with information about referenced files in the document.
+  The file is created during every build or with the specific **testspec** builder.

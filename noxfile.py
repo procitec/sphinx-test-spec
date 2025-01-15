@@ -1,8 +1,8 @@
 import nox
 from nox_poetry import session
 
-PYTHON_VERSIONS = ["3.9.13", "3.10.4"]
-SPHINX_VERSIONS = ["4.5", "5.2.1", "5.2.3", "6.1.3"]
+PYTHON_VERSIONS = ["3.9.13", "3.10.4", "3.11.9"]
+SPHINX_VERSIONS = ["4.5", "5.2.1", "5.2.3", "6.1.3", "7.1"]
 TEST_DEPENDENCIES = [
     "pytest",
     "pytest-xdist",
@@ -33,12 +33,12 @@ def tests(session, sphinx):
         session.skip("unsupported combination")
 
 
-@session(python="3.9")
+@session(python="3.11")
 def linkcheck(session):
     session.install(".")
     # LinkCheck cn handle rate limits since Sphinx 3.4, which is needed as
     # our doc has to many links to github.
-    session.run("pip", "install", "sphinx==5.2.3", silent=True)
+    session.run("pip", "install", "sphinx==7.1", silent=True)
 
     session.run("pip", "install", "-r", "docs/requirements.txt", silent=True)
     session.run("make", "docs-linkcheck", external=True)

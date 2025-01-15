@@ -9,4 +9,5 @@
    directives
    configuration
    roles
+   builders
    changelog

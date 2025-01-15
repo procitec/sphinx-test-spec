@@ -183,4 +183,4 @@ class TestSpecDomain(Domain):
 
     def add_file(self, name):
         path = PurePosixPath(name)
-        self.data["files"][str(path)] = {"name": path.name, "path": path.parent, "suffix": path.suffix}
+        self.data["files"][path.as_posix()] = {"name": path.name, "path": path.parent.as_posix(), "suffix": path.suffix}
