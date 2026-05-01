@@ -1,16 +1,11 @@
-from docutils.parsers.rst import Directive, directives, nodes
-from sphinx import addnodes
+from docutils.parsers.rst import directives, nodes
 from sphinx.directives import ObjectDescription
-from sphinx.errors import ExtensionError
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 
 # logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
-
-import re
-import sys
 
 
 class TestCaseDirective(ObjectDescription):
@@ -61,9 +56,6 @@ class TestCaseDirective(ObjectDescription):
         logger.info(f"got caption {caption} {textnodes}")
         ids = [f"test-case-{caption}"]
 
-        required_arguments = 1
-        final_argument_whitespace = True
-
         node_section = nodes.section(ids=ids, classes=[_class_test_case_section])
         node_section += nodes.title(caption, "", *textnodes)
 
@@ -82,7 +74,8 @@ class TestCaseDirective(ObjectDescription):
                 _state.headers = env.config.testspec_header
             else:
                 logger.error(
-                    f"lenght of config heaaders {len(env.config.testspec_header)} does not match required header length 4"
+                    f"lenght of config heaaders {len(env.config.testspec_header)} "
+                    "does not match required header length 4"
                 )
 
         if 0 < len(env.config.testspec_header_widths):
@@ -90,7 +83,8 @@ class TestCaseDirective(ObjectDescription):
                 widths = env.config.testspec_header_widths
             else:
                 logger.error(
-                    f"lenght of config heaaders widths {len(env.config.testspec_header_widths)} does not match required header length 4"
+                    f"lenght of config heaaders widths {len(env.config.testspec_header_widths)} "
+                    "does not match required header length 4"
                 )
 
         if not len(_state.headers) == _state.columns:
@@ -106,10 +100,9 @@ class TestCaseDirective(ObjectDescription):
         _state.node_tgroup = None
         _state.node_tbody = None
         _state.node_thead = None
-        # _state.node_table_id = [f"test-case-{caption}"] #no extra reference of table as role, just the section from the case
 
-        # class "colwidths-given" must be set since docutils-0.18.1, otherwise the table will not have
-        # any colgroup definitions.
+        # class "colwidths-given" must be set since docutils-0.18.1,
+        # otherwise the table will not have any colgroup definitions.
         class_colwidth = "colwidths-given" if 0 < len(widths) else "colwidths-auto"
 
         _state.node_table = nodes.table(classes=classes + [class_colwidth])  # , ids=_state.node_table_id)
@@ -265,7 +258,6 @@ class ReactionDirective(ObjectDescription):
 
         logger.debug(f"adding test reaction with content {self.content}")
         self.assert_has_content()
-        ids = []
         test_domain = self.env.get_domain("test")
 
         _state = test_domain.data["state"]
@@ -294,7 +286,7 @@ class FileListDirective(SphinxDirective):
     }
 
     def run(self):
-        logger.debug(f"adding test filelist")
+        logger.debug("adding test filelist")
         test_domain = self.env.get_domain("test")
         _files = test_domain.data["files"]
         _content = []
@@ -309,7 +301,7 @@ class FileListDirective(SphinxDirective):
                 if bool(eval(filter_string, None, locals())):
                     _content.append(k)
         else:
-            for k, v in _files.items():
+            for k, _v in _files.items():
                 _content.append(k)
 
         if "class" in self.options:

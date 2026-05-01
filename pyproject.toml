@@ -1,62 +1,90 @@
-[tool.poetry]
+[project]
 name = "sphinx-test-spec"
-
-# !! Don't miss updates in setup.py or related files !!!
 version = "25.1"
-
-description = "Sphinx extension definition of manual test specifications"
-authors = ["team procitec <info@procitec.de>"]
-license = "MIT"
+description = "Sphinx extension for defining manual test specifications"
 readme = "README.rst"
-repository = "https://github.com/procitec/sphinx-test-spec"
-documentation = "https://github.com/procitec/sphinx-test-spec"
-classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.10',
-        'Topic :: Documentation',
-        'Topic :: Utilities',
-        'Framework :: Sphinx :: Extension',
-    ]
-
-packages = [
-    {include = "sphinx_test_spec", from = "."}
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "team procitec", email = "info@procitec.de" },
+]
+keywords = ["sphinx", "documentation", "test-specification", "restructuredtext"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Framework :: Sphinx :: Extension",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Documentation",
+  "Topic :: Documentation :: Sphinx",
+  "Topic :: Utilities",
 ]
 
-[tool.poetry.dependencies]
-python = ">3.6.2,<4.0"
-sphinx = [
-    { version = ">4.0", python = "<3.10" },
-    { version = ">6.0", python = ">=3.10" },
+
+[project.urls]
+Repository = "https://github.com/procitec/sphinx-test-spec"
+Documentation = "https://github.com/procitec/sphinx-test-spec/tree/main/docs"
+Issues = "https://github.com/procitec/sphinx-test-spec/issues"
+
+[dependency-groups]
+dev = [
+  { include-group = "test" },
+  { include-group = "lint" },
+  { include-group = "docs" },
 ]
-
-[tool.poetry.dev-dependencies]
-pre-commit = "^2"
-# test dependencies
-pytest = ">6.2.5"
-pytest-xdist="*"  # parallelisation
-
-# formatting dependencies
-black = "^22.3"
-isort = "^5.7.0"
-
-[tool.black]
-line-length = 120
-
-[tool.isort]
-profile = "black"
-
-[tool.poetry.extras]
-docs = ["sphinx"]
+test = [
+  "pytest>=8.0",
+  "pytest-xdist>=3.5",
+  "pyparsing!=3.0.4",
+]
+lint = [
+  "ruff>=0.13",
+]
+docs = [
+  "sphinx>=8.2,<9",
+  "sphinx-immaterial>=0.13,<0.14",
+]
 
 [build-system]
-requires = ["poetry-core @ git+https://github.com/python-poetry/poetry-core.git@main"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.11.8,<0.12"]
+build-backend = "uv_build"
 
+[tool.uv.build-backend]
+module-name = "sphinx_test_spec"
+module-root = ""
+source-include = [
+  "/docs/**",
+  "/tests/**",
+  "/tox.toml",
+  "/Makefile",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+  "--tb=long",
+  "--log-level=DEBUG",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

@@ -1,11 +1,10 @@
+import sys
 from pathlib import Path
 
 import pytest
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
-
-import sys
 
 
 @pytest.mark.parametrize(
@@ -29,6 +28,6 @@ def test_case_classes(test_app):
     assert html.count('<thead class="test-case-head">') == 1
 
     assert (
-        '<div class="test-case-content docutils container">\n<p>This is free text before the table after the title</p>\n</div>'
-        in html
+        '<div class="test-case-content docutils container">\n<p>'
+        "This is free text before the table after the title</p>\n</div>" in html
     )

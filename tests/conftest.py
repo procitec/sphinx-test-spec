@@ -1,18 +1,20 @@
 """Pytest conftest module containing common test configuration and fixtures."""
 
 import shutil
+from pathlib import Path
 
 import pytest
-from sphinx.testing.path import path
 
 pytest_plugins = "sphinx.testing.fixtures"
 
 
-def copy_srcdir_to_tmpdir(srcdir, tmp):
-    srcdir = path(__file__).parent.abspath() / srcdir
-    tmproot = tmp / path(srcdir).basename()
-    shutil.copytree(srcdir, tmproot)
-    return tmproot
+def copy_srcdir_to_tmpdir(srcdir: str | Path, tmp: str | Path) -> Path:
+    src_path = Path(__file__).parent.resolve() / srcdir
+    tmp_root = Path(tmp) / src_path.name
+
+    shutil.copytree(src_path, tmp_root)
+
+    return tmp_root
 
 
 @pytest.fixture(scope="function")

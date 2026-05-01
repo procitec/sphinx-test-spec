@@ -1,12 +1,11 @@
+import json
+import sys
 from pathlib import Path
 
 import pytest
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
-
-import json
-import sys
 
 
 @pytest.mark.parametrize(
@@ -22,7 +21,7 @@ def test_doc_builder_file_json(test_app):
     json_content = json.loads(Path(app.outdir, "testspec.json").read_text())
 
     warning = app._warning
-    warnings = warning.getvalue()
+    warning.getvalue()
 
     assert 3 == len(json_content["files"].keys())
     assert "index" == json_content["document"]

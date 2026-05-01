@@ -7,11 +7,8 @@ from docutils.parsers.rst import nodes
 from sphinx.domains import Domain, Index
 from sphinx.locale import get_translation
 from sphinx.roles import EmphasizedLiteral, XRefRole
-from sphinx.util import logging, ws_re
+from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
-
-MESSAGE_CATALOG_NAME = "sphinx_test_spec"
-_ = get_translation(MESSAGE_CATALOG_NAME)
 
 from sphinx_test_spec.directives import (  # ColumnDirective,; RowDirective,; TableDirective,
     ActionDirective,
@@ -19,6 +16,9 @@ from sphinx_test_spec.directives import (  # ColumnDirective,; RowDirective,; Ta
     ReactionDirective,
     TestCaseDirective,
 )
+
+MESSAGE_CATALOG_NAME = "sphinx_test_spec"
+_ = get_translation(MESSAGE_CATALOG_NAME)
 
 logger = logging.getLogger(__name__)
 
@@ -108,9 +108,8 @@ class TestSpecDomain(Domain):
             node_table_id=None,
             node_tgroup=None,
             node_tbody=None,
-            node_thead=None
+            node_thead=None,
             # , node_colspec = None
-            ,
             action_anchor=None,
             columns=4,
             headers=["id", "action", "reaction", "ok"],

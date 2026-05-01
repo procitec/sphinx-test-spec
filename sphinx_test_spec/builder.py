@@ -4,11 +4,10 @@ import json
 import os
 from collections.abc import Iterable, Sequence
 
+from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.util import logging
-
-from sphinx_test_spec.domain import TestSpecDomain
 
 LOGGER = logging.getLogger(__name__)
 

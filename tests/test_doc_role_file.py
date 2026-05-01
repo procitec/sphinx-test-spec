@@ -1,11 +1,10 @@
+import sys
 from pathlib import Path
 
 import pytest
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
-
-import sys
 
 
 @pytest.mark.parametrize(
