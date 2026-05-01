@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def test_doc_wrong_levels_reactions(test_app):
     app = test_app
     app.build()
-    html = Path(app.outdir, "index.html").read_text()
+    html = Path(app.outdir, "index.html").read_text(encoding="utf-8")
 
     assert "The calculator sums and shows you ‘4’ as result." not in html
     assert "The calculator does show ‘0‘ or shows nothing" not in html

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def test_doc_role_action(test_app):
     app = test_app
     app.build()
-    html = Path(app.outdir, "index.html").read_text()
+    html = Path(app.outdir, "index.html").read_text(encoding="utf-8")
 
     assert '<span class="pre">1.0<' in html
     assert 'class="reference internal" href="#test-action-1.ID_TEST_001"><code class="xref test test-action' in html

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def test_doc_role_file(test_app):
     app = test_app
     app.build()
-    html = Path(app.outdir, "index.html").read_text()
+    html = Path(app.outdir, "index.html").read_text(encoding="utf-8")
 
     warning = app._warning
     warnings = warning.getvalue()

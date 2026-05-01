@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def test_doc_role_case(test_app):
     app = test_app
     app.build()
-    html = Path(app.outdir, "index.html").read_text()
+    html = Path(app.outdir, "index.html").read_text(encoding="utf-8")
 
     assert (
         'As you can read in <a class="reference internal" href="#test-case-Summarize and Clear values in calculator"'

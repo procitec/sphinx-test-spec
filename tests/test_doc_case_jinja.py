@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def test_case_jinja(test_app):
     app = test_app
     app.build()
-    html = Path(app.outdir, "index.html").read_text()
+    html = Path(app.outdir, "index.html").read_text(encoding="utf-8")
 
     assert ">print<" in html
     assert ">&quot;this is my code&quot;<" in html

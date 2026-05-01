@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def test_doc_column_widths(test_app):
     app = test_app
     app.build()
-    html = Path(app.outdir, "index.html").read_text()
+    html = Path(app.outdir, "index.html").read_text(encoding="utf-8")
 
     assert "<colgroup>" in html
     assert 2 == html.count('<col style="width: 10.0%" />')

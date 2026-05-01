@@ -588,7 +588,7 @@ wheels = [
 
 [[package]]
 name = "sphinx-test-spec"
-version = "25.1"
+version = "26.1"
 source = { editable = "." }
 
 [package.dev-dependencies]

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def test_case_content(test_app):
     app = test_app
     app.build()
-    html = Path(app.outdir, "index.html").read_text()
+    html = Path(app.outdir, "index.html").read_text(encoding="utf-8")
 
     assert html.count("<tr class=") == 3
     assert html.count("<table class=") == 1
