@@ -1,6 +1,6 @@
 [project]
 name = "sphinx-test-spec"
-version = "25.1"
+version = "26.1"
 description = "Sphinx extension for defining manual test specifications"
 readme = "README.rst"
 requires-python = ">=3.11"
