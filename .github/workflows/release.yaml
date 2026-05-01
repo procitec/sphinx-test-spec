@@ -4,57 +4,81 @@ on:
   push:
     tags:
       - "*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v25.1 or 25.1"
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 jobs:
   release:
-    name: Build wheel and create GitHub Release
+    name: Build and release
     runs-on: ubuntu-latest
 
     steps:
+      - name: Resolve tag
+        id: release
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+
+          VERSION="${TAG#v}"
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/checkout@v5
         with:
-          python-version: "3.12"
+          ref: ${{ steps.release.outputs.tag }}
 
-      - name: Set up uv
+      - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: false
 
-      - name: Install dependencies
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Sync dependencies
         run: uv sync --all-groups
 
-      - name: Check tag matches project version
+      - name: Check package version matches tag
         shell: bash
         run: |
-          project_version="$(python -c 'import tomllib; from pathlib import Path; print(tomllib.load(Path("pyproject.toml").open("rb"))["project"]["version"])')"
-          tag_version="${GITHUB_REF_NAME#v}"
-          if [[ "$tag_version" != "$project_version" ]]; then
-            echo "Tag '$GITHUB_REF_NAME' does not match pyproject.toml version '$project_version'."
-            echo "Use tag '$project_version' or 'v$project_version'."
+          PROJECT_VERSION="$(uv run python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+          TAG_VERSION="${{ steps.release.outputs.version }}"
+
+          echo "pyproject.toml version: $PROJECT_VERSION"
+          echo "release tag version:    $TAG_VERSION"
+
+          if [ "$PROJECT_VERSION" != "$TAG_VERSION" ]; then
+            echo "Version mismatch: pyproject.toml has $PROJECT_VERSION but tag is $TAG_VERSION"
             exit 1
           fi
 
       - name: Lint
-        run: uv run ruff check sphinx_test_spec tests
+        run: uv run ruff check .
 
       - name: Test
-        run: uv run python -m pytest -n auto tests/
+        run: uv run pytest
 
       - name: Build wheel
         run: uv build --wheel
 
-      - name: Create GitHub Release and upload wheel
+      - name: Create GitHub release
         env:
-          GH_TOKEN: ${{ github.token }}
-          TAG_NAME: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "$TAG_NAME" dist/*.whl \
-            --title "$TAG_NAME" \
-            --generate-notes
+          gh release create "${{ steps.release.outputs.tag }}" \
+            --title "${{ steps.release.outputs.tag }}" \
+            --notes "Release ${{ steps.release.outputs.tag }}" \
+            dist/*.whl
