@@ -9,6 +9,10 @@ The `Test` Domain supports following rules for crossreferencing:
 
     To add a reference to a test case, add :code:`:test:case:`title``
 
+.. rst:role:: test:action
+
+    To add a reference to a test action, add :code:`:test:action:`title``
+
 .. rst:role:: test:file
 
     To add a reference to a test file, add :code:`:test:file:`filename``.
