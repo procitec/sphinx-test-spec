@@ -3,6 +3,19 @@ from sphinx.directives import ObjectDescription
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 
+from sphinx_test_spec.forms import (
+    case_field_key,
+    comment_control_html,
+    comment_field_name,
+    free_comment_control_html,
+    free_comment_field_name,
+    free_radio_control_html,
+    free_radio_field_name,
+    result_controls_html,
+    result_field_name,
+    result_header_html,
+)
+
 # logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
@@ -30,6 +43,7 @@ class TestCaseDirective(ObjectDescription):
         #        "widths": directives.unchanged,
         #        "title": directives.unchanged,
         #        "columns": directives.unchanged,
+        "id": directives.unchanged,
         "class": directives.unchanged,
         #        "header-rows": int,
     }
@@ -44,8 +58,8 @@ class TestCaseDirective(ObjectDescription):
             classes.append(self.options["class"])
 
         widths = []
-        # case_id = None
         caption = self.arguments[0]
+        case_id = self.options.get("id")
         test_domain = self.env.get_domain("test")
         _state = test_domain.data["state"]
 
@@ -55,9 +69,12 @@ class TestCaseDirective(ObjectDescription):
 
         logger.info(f"got caption {caption} {textnodes}")
         ids = [f"test-case-{caption}"]
+        if case_id:
+            ids.append(f"test-case-{case_id}")
 
         node_section = nodes.section(ids=ids, classes=[_class_test_case_section])
-        node_section += nodes.title(caption, "", *textnodes)
+        node_title = nodes.title(caption, "", *textnodes)
+        node_section += node_title
 
         # if "id" in self.options:
         #    case_id = self.options["id"]
@@ -69,14 +86,17 @@ class TestCaseDirective(ObjectDescription):
 
         logger.debug(f"create test case with {_state.columns} columns")
 
+        headers = list(_state.headers)
         if 0 < len(env.config.testspec_header):
             if 4 == len(env.config.testspec_header):
-                _state.headers = env.config.testspec_header
+                headers = list(env.config.testspec_header)
             else:
                 logger.error(
                     f"lenght of config heaaders {len(env.config.testspec_header)} "
                     "does not match required header length 4"
                 )
+        elif env.config.testspec_result_mode == "form":
+            headers[-1] = ""
 
         if 0 < len(env.config.testspec_header_widths):
             if 4 == len(env.config.testspec_header_widths):
@@ -87,13 +107,29 @@ class TestCaseDirective(ObjectDescription):
                     "does not match required header length 4"
                 )
 
-        if not len(_state.headers) == _state.columns:
-            logger.error(
-                f"configured headers length {len(_state.headers)} does not match required length {_state.columns}"
-            )
+        if not len(headers) == _state.columns:
+            logger.error(f"configured headers length {len(headers)} does not match required length {_state.columns}")
 
         _state.action_id = 0
         _state.case_id += 1
+        case_number = _state.case_id
+        field_key = case_field_key(case_id, env.docname, case_number)
+        case_record = {
+            "docname": env.docname,
+            "id": case_id,
+            "title": node_title.astext(),
+            "comment_field": comment_field_name(field_key) if env.config.testspec_result_mode == "form" else None,
+            "field_key": field_key if env.config.testspec_result_mode == "form" else None,
+            "steps": [],
+        }
+        test_domain.data["manifest_cases"].append(case_record)
+        _state.current_case = case_record
+
+        if env.config.testspec_result_mode == "form" and not case_id:
+            logger.warning(
+                f"test:case '{node_title.astext()}' has no :id:; "
+                "the result cannot be mapped to a stable external test id"
+            )
 
         _state.node_table = None
         _state.node_thead = None
@@ -119,9 +155,17 @@ class TestCaseDirective(ObjectDescription):
 
         header_row = nodes.row()
 
-        if 0 < len(_state.headers):
-            for header in _state.headers:
-                node_th = nodes.entry("", nodes.Text(header))
+        if 0 < len(headers):
+            for index, header in enumerate(headers):
+                if env.config.testspec_result_mode == "form" and index == _state.columns - 1:
+                    node_th = nodes.entry()
+                    node_th += nodes.raw(
+                        "",
+                        result_header_html(env.config.testspec_result_labels, header),
+                        format="html",
+                    )
+                else:
+                    node_th = nodes.entry("", nodes.Text(header))
                 header_row += node_th
 
         _state.node_thead = nodes.thead("", header_row, classes=["test-case-head"])
@@ -139,10 +183,17 @@ class TestCaseDirective(ObjectDescription):
         node_section += node_case
         node_section += _state.node_table
 
+        if env.config.testspec_result_mode == "form":
+            node_section += nodes.raw(
+                "",
+                comment_control_html(case_record["comment_field"], env.config.testspec_comment_label),
+                format="html",
+            )
+
         assert caption is not None
 
-        # if caption is not None# or case_id is not None: #this should never occur
-        test_domain.add_case(caption)  # , case_id)
+        test_domain.add_case(caption, case_id)
+        _state.current_case = None
 
         return [node_section]
 
@@ -203,6 +254,7 @@ class ActionDirective(ObjectDescription):
         kwargs["classes"] = classes
 
         action_id_text = f"{_state.case_id}.{_state.action_id}"
+        step_number = _state.action_id + 1
 
         node_id = nodes.entry(classes=[_class_test_action_id], ids=ids)
         node_id_text = nodes.Text(action_id_text)
@@ -222,14 +274,30 @@ class ActionDirective(ObjectDescription):
         else:
             node_row += nodes.entry()
 
-        state_symbol = env.config.testspec_state_symbol
-
         node_state = nodes.entry(classes=[_class_test_action_state])
-        node_state_text = nodes.Text(state_symbol)
-        node_state += node_state_text
+        if env.config.testspec_result_mode == "form":
+            field_name = result_field_name(_state.current_case["field_key"], step_number)
+            node_state += nodes.raw(
+                "",
+                result_controls_html(field_name, env.config.testspec_result_labels),
+                format="html",
+            )
+        else:
+            field_name = None
+            node_state += nodes.Text(env.config.testspec_state_symbol)
 
         node_row += node_state
         _state.node_tbody += node_row
+
+        if _state.current_case is not None:
+            _state.current_case["steps"].append(
+                {
+                    "number": step_number,
+                    "action": node_action.astext(),
+                    "reaction": _state.node_reaction.astext() if _state.node_reaction is not None else "",
+                    "result_field": field_name,
+                }
+            )
 
         if "id" in self.options:
             test_domain.add_action(_state.case_id, self.options["id"], action_id_text)
@@ -275,6 +343,63 @@ class ReactionDirective(ObjectDescription):
             logger.error("reaction diretive already defined in a test::action, could occur only once!")
 
         return []
+
+
+class ChoiceDirective(SphinxDirective):
+    """Render a generic single-choice group outside a test case."""
+
+    has_content = True
+    required_arguments = 1
+    final_argument_whitespace = True
+    option_spec = {
+        "id": directives.unchanged,
+        "class": directives.unchanged,
+    }
+
+    def run(self):
+        field_id = self.options.get("id", "").strip()
+        if not field_id:
+            raise self.error("test:choice requires an :id: option")
+
+        options = [line.strip() for line in self.content if line.strip()]
+        if len(options) < 2:
+            raise self.error("test:choice requires at least two non-empty option lines")
+
+        field_name = free_radio_field_name(field_id, self.env.docname)
+        html = free_radio_control_html(
+            self.arguments[0],
+            field_name,
+            options,
+            self.options.get("class", ""),
+        )
+        return [nodes.raw("", html, format="html")]
+
+
+class CommentDirective(SphinxDirective):
+    """Render a generic multiline annotation field outside a test case."""
+
+    has_content = False
+    required_arguments = 1
+    final_argument_whitespace = True
+    option_spec = {
+        "id": directives.unchanged,
+        "rows": directives.positive_int,
+        "class": directives.unchanged,
+    }
+
+    def run(self):
+        field_id = self.options.get("id", "").strip()
+        if not field_id:
+            raise self.error("test:comment requires an :id: option")
+
+        field_name = free_comment_field_name(field_id, self.env.docname)
+        html = free_comment_control_html(
+            self.arguments[0],
+            field_name,
+            self.options.get("rows", 4),
+            self.options.get("class", ""),
+        )
+        return [nodes.raw("", html, format="html")]
 
 
 class FileListDirective(SphinxDirective):

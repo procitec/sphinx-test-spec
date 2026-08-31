@@ -12,7 +12,9 @@ from sphinx.util.nodes import make_refnode
 
 from sphinx_test_spec.directives import (  # ColumnDirective,; RowDirective,; TableDirective,
     ActionDirective,
+    CommentDirective,
     FileListDirective,
+    ChoiceDirective,
     ReactionDirective,
     TestCaseDirective,
 )
@@ -82,6 +84,7 @@ class FileRole(EmphasizedLiteral):
 
 class TestSpecDomain(Domain):
     name = "test"
+    data_version = 1
     label = "Test Specifications"
     roles = {"case": XRefRole(), "action": XRefRole(), "file": FileRole()}
 
@@ -89,6 +92,8 @@ class TestSpecDomain(Domain):
         "case": TestCaseDirective,
         "action": ActionDirective,
         "reaction": ReactionDirective,
+        "choice": ChoiceDirective,
+        "comment": CommentDirective,
         "filelist": FileListDirective,
     }
 
@@ -97,6 +102,7 @@ class TestSpecDomain(Domain):
 
     initial_data = {
         "cases": [],  # list of all test cases for references
+        "case_ids": {},  # stable test case ids for references
         "actions": [],  # list of all test actions for references
         "state": types.SimpleNamespace(
             cases={},
@@ -113,13 +119,56 @@ class TestSpecDomain(Domain):
             action_anchor=None,
             columns=4,
             headers=["id", "action", "reaction", "ok"],
+            current_case=None,
         ),  # internal parser state
         "files": {},  # dictionary of mentioned test files
+        "file_docs": {},  # file -> document names, used for incremental/parallel builds
+        "manifest_cases": [],  # structured test cases used for testspec-manifest.json
     }
 
     #    def setup(self):
     #        super().setup()
     #        self._state.case_id = 0
+
+    def clear_doc(self, docname):
+        self.data["cases"] = [entry for entry in self.data["cases"] if entry[3] != docname]
+        self.data["actions"] = [entry for entry in self.data["actions"] if entry[3] != docname]
+        self.data["case_ids"] = {
+            case_id: entry for case_id, entry in self.data["case_ids"].items() if entry[0] != docname
+        }
+        self.data["manifest_cases"] = [
+            case for case in self.data["manifest_cases"] if case.get("docname") != docname
+        ]
+
+        for path, docnames in list(self.data["file_docs"].items()):
+            remaining = [name for name in docnames if name != docname]
+            if remaining:
+                self.data["file_docs"][path] = remaining
+            else:
+                self.data["file_docs"].pop(path, None)
+                self.data["files"].pop(path, None)
+
+    def merge_domaindata(self, docnames, otherdata):
+        self.data["cases"].extend(entry for entry in otherdata["cases"] if entry[3] in docnames)
+        self.data["actions"].extend(entry for entry in otherdata["actions"] if entry[3] in docnames)
+
+        for case_id, entry in otherdata["case_ids"].items():
+            if entry[0] in docnames:
+                self.data["case_ids"][case_id] = entry
+
+        self.data["manifest_cases"].extend(
+            case for case in otherdata["manifest_cases"] if case.get("docname") in docnames
+        )
+
+        for path, file_docnames in otherdata.get("file_docs", {}).items():
+            relevant = [name for name in file_docnames if name in docnames]
+            if not relevant:
+                continue
+            self.data["files"][path] = otherdata["files"][path]
+            current = self.data["file_docs"].setdefault(path, [])
+            for name in relevant:
+                if name not in current:
+                    current.append(name)
 
     def get_full_qualified_name(self, node):
         return "{}.{}".format("test_case", node.arguments[0])
@@ -131,6 +180,17 @@ class TestSpecDomain(Domain):
             yield (obj)
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        if typ == "case" and target in self.data["case_ids"]:
+            docname, anchor, signature = self.data["case_ids"][target]
+            return make_refnode(
+                builder,
+                fromdocname,
+                docname,
+                f"test-case-{anchor}",
+                contnode,
+                signature,
+            )
+
         match = [
             (docname, anchor, sig) for name, sig, typ, docname, anchor, prio in self.get_objects() if target in anchor
         ]
@@ -157,17 +217,18 @@ class TestSpecDomain(Domain):
             logger.debug(f"Could not resolve xref for {target}")
             return None
 
-    def add_case(self, signature):  # , id):
+    def add_case(self, signature, case_id=None):
         """Add a new test case to the domain."""
-        for _id in [signature]:  # , id]:
-            if _id is not None:
-                name = "{}.{}".format("test-case", _id)
-                # anchor = "test-case-{}".format(_id)
-                anchor = _id
+        if signature is not None:
+            name = "{}.{}".format("test-case", signature)
+            anchor = signature
 
-                # name, dispname, type, docname, anchor, priority
-                logger.debug(f"adding referency to test specifications: {name}, {_id}, {anchor}")
-                self.data["cases"].append((name, _id, "Test Case", self.env.docname, anchor, 0))
+            # name, dispname, type, docname, anchor, priority
+            logger.debug(f"adding reference to test specifications: {name}, {signature}, {anchor}")
+            self.data["cases"].append((name, signature, "Test Case", self.env.docname, anchor, 0))
+
+        if case_id:
+            self.data["case_ids"][case_id] = (self.env.docname, case_id, signature)
 
     def add_action(self, case_id, action_id, signature):
         """Add a new test action to the domain."""
@@ -182,4 +243,12 @@ class TestSpecDomain(Domain):
 
     def add_file(self, name):
         path = PurePosixPath(name)
-        self.data["files"][path.as_posix()] = {"name": path.name, "path": path.parent.as_posix(), "suffix": path.suffix}
+        path_string = path.as_posix()
+        self.data["files"][path_string] = {
+            "name": path.name,
+            "path": path.parent.as_posix(),
+            "suffix": path.suffix,
+        }
+        docnames = self.data["file_docs"].setdefault(path_string, [])
+        if self.env.docname not in docnames:
+            docnames.append(self.env.docname)

@@ -53,3 +53,23 @@ For examples look at the `test` directory in this repo. All automated tests coul
 
 The tests could be run by running `nox` in the extension directory or by manually calling `make test`.
 
+
+Free PDF form fields
+--------------------
+
+Besides the result fields of ``test:case``, arbitrary choice groups and comment
+fields can be added to HTML/SimplePDF output::
+
+    .. test:choice:: Betriebssystem
+       :id: operating-system
+
+       Ubuntu
+       RedHat
+       Windows
+
+    .. test:comment:: Allgemeine Anmerkungen
+       :id: general-notes
+       :rows: 4
+
+The choices are distributed evenly across one row. These free fields are
+independent of the JUnit aggregation of ``test:case`` results.

@@ -18,7 +18,8 @@ def test_doc_builder_file_json(test_app):
     app.build()
     html = Path(app.outdir, "index.html")
     assert not html.exists()
-    json_content = json.loads(Path(app.outdir, "testspec.json").read_text(encoding="utf-8"))
+    json_content = json.loads(Path(app.outdir, "testspec-resources.json").read_text(encoding="utf-8"))
+    assert not Path(app.outdir, "testspec.json").exists()
 
     warning = app._warning
     warning.getvalue()

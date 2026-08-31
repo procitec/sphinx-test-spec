@@ -10,4 +10,5 @@
    configuration
    roles
    builders
+   manual_results
    changelog

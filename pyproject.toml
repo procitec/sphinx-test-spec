@@ -1,6 +1,6 @@
 [project]
 name = "sphinx-test-spec"
-version = "26.1"
+version = "26.2.5"
 description = "Sphinx extension for defining manual test specifications"
 readme = "README.rst"
 requires-python = ">=3.11"
@@ -10,6 +10,10 @@ authors = [
   { name = "team procitec", email = "info@procitec.de" },
 ]
 keywords = ["sphinx", "documentation", "test-specification", "restructuredtext"]
+dependencies = [
+  "pypdf>=5.4",
+]
+
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Framework :: Sphinx :: Extension",
@@ -26,6 +30,10 @@ classifiers = [
   "Topic :: Utilities",
 ]
 
+
+[project.scripts]
+testspec-result = "sphinx_test_spec.result_cli:main"
+testspec-normalize-pdf = "sphinx_test_spec.pdf_form_cli:main"
 
 [project.urls]
 Repository = "https://github.com/procitec/sphinx-test-spec"
