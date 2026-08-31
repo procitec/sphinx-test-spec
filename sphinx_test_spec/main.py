@@ -61,10 +61,9 @@ def add_manifest_attachment_link(app, pagename, templatename, context, doctree) 
     target_dir = posixpath.dirname(target_uri)
     relative_manifest = posixpath.relpath(TESTSPEC_MANIFEST_FILENAME, start=target_dir or ".")
     attachment = (
-        f'<link rel="attachment" href="{escape(relative_manifest, quote=True)}" '
-        'title="Test specification manifest">'
+        f'<link rel="attachment" href="{escape(relative_manifest, quote=True)}" title="Test specification manifest">'
     )
-    context["metatags"] = f'{context.get("metatags", "")}\n{attachment}'
+    context["metatags"] = f"{context.get('metatags', '')}\n{attachment}"
 
 
 def finalize_testspec_build(app, exception) -> None:

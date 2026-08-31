@@ -82,11 +82,13 @@ def _radio_appearance_stream(width: float, height: float, selected: bool) -> Dec
 
     commands = ["q"]
     if selected:
-        commands.extend((
-            "0 0 0 rg",
-            _circle_path(cx, cy, inner_radius),
-            "f",
-        ))
+        commands.extend(
+            (
+                "0 0 0 rg",
+                _circle_path(cx, cy, inner_radius),
+                "f",
+            )
+        )
     commands.append("Q")
 
     stream = DecodedStreamObject()
@@ -94,9 +96,7 @@ def _radio_appearance_stream(width: float, height: float, selected: bool) -> Dec
     stream[NameObject("/Type")] = NameObject("/XObject")
     stream[NameObject("/Subtype")] = NameObject("/Form")
     stream[NameObject("/FormType")] = NumberObject(1)
-    stream[NameObject("/BBox")] = ArrayObject(
-        [FloatObject(0), FloatObject(0), FloatObject(width), FloatObject(height)]
-    )
+    stream[NameObject("/BBox")] = ArrayObject([FloatObject(0), FloatObject(0), FloatObject(width), FloatObject(height)])
     stream[NameObject("/Resources")] = DictionaryObject()
     return stream
 
@@ -186,9 +186,7 @@ def _normalize_radio_group(
     # together with WeasyPrint's numeric /0, /1, /2 states.
     if "/Opt" in group:
         del group["/Opt"]
-    group[NameObject("/V")] = (
-        NameObject(f"/{selected_state}") if selected_state else NameObject("/Off")
-    )
+    group[NameObject("/V")] = NameObject(f"/{selected_state}") if selected_state else NameObject("/Off")
     group[NameObject("/DV")] = NameObject("/Off")
 
 

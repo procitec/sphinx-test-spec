@@ -15,22 +15,14 @@ def _step_label(case: CaseResult, number: int) -> str:
 
 
 def _failure_text(case: CaseResult) -> str:
-    lines = [
-        f"{_step_label(case, step.number)} -> FAIL"
-        for step in case.steps
-        if step.result == "failed"
-    ]
+    lines = [f"{_step_label(case, step.number)} -> FAIL" for step in case.steps if step.result == "failed"]
     if case.comment:
         lines.extend(("", f"Comment: {case.comment}"))
     return "\n".join(lines)
 
 
 def _error_text(case: CaseResult) -> str:
-    lines = [
-        f"{_step_label(case, step.number)} -> no result"
-        for step in case.steps
-        if step.result is None
-    ]
+    lines = [f"{_step_label(case, step.number)} -> no result" for step in case.steps if step.result is None]
     if case.comment:
         lines.extend(("", f"Comment: {case.comment}"))
     return "\n".join(lines)

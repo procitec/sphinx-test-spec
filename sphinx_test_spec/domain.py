@@ -12,9 +12,9 @@ from sphinx.util.nodes import make_refnode
 
 from sphinx_test_spec.directives import (  # ColumnDirective,; RowDirective,; TableDirective,
     ActionDirective,
+    ChoiceDirective,
     CommentDirective,
     FileListDirective,
-    ChoiceDirective,
     ReactionDirective,
     TestCaseDirective,
 )
@@ -136,9 +136,7 @@ class TestSpecDomain(Domain):
         self.data["case_ids"] = {
             case_id: entry for case_id, entry in self.data["case_ids"].items() if entry[0] != docname
         }
-        self.data["manifest_cases"] = [
-            case for case in self.data["manifest_cases"] if case.get("docname") != docname
-        ]
+        self.data["manifest_cases"] = [case for case in self.data["manifest_cases"] if case.get("docname") != docname]
 
         for path, docnames in list(self.data["file_docs"].items()):
             remaining = [name for name in docnames if name != docname]

@@ -22,7 +22,7 @@ def test_result_form_and_manifest(test_app):
     assert html.count('value="passed"') == 2
     assert html.count('value="failed"') == 2
     assert html.count('value="na"') == 2
-    assert html.count('testspec-case-comment-input') == 1
+    assert html.count("testspec-case-comment-input") == 1
     assert "testspec-result-header-labels" in html
     assert "testspec-result-options" in html
     assert "testspec-result-passed" in html
@@ -34,7 +34,7 @@ def test_result_form_and_manifest(test_app):
     assert html.count('aria-label="passed"') == 2
     assert html.count('aria-label="failed"') == 2
     assert html.count('aria-label="na"') == 2
-    assert 'Anmerkung:' in html
+    assert "Anmerkung:" in html
     assert 'href="#test-case-startup"' in html
 
     assert manifest["schema_version"] == 1

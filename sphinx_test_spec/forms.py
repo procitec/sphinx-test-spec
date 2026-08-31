@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Mapping
 from html import escape
-from typing import Mapping
 
 RESULT_VALUES = ("passed", "failed", "na")
 DEFAULT_RESULT_LABELS = {
@@ -80,11 +80,7 @@ def result_header_html(labels: Mapping[str, str] | None = None, caption: str = "
             f'title="{value}" style="{_result_item_style()}">{label}</span>'
         )
 
-    group = (
-        f'<span class="testspec-result-header-labels" style="{_result_group_style()}">'
-        + "".join(items)
-        + "</span>"
-    )
+    group = f'<span class="testspec-result-header-labels" style="{_result_group_style()}">' + "".join(items) + "</span>"
     if not caption:
         return group
 
@@ -112,11 +108,7 @@ def result_controls_html(field_name: str, labels: Mapping[str, str] | None = Non
             'style="appearance: auto; display: inline-block; flex: 0 0 auto; margin: 0; padding: 0;">'
             "</label>"
         )
-    return (
-        f'<span class="testspec-result-options" style="{_result_group_style()}">'
-        + "".join(controls)
-        + "</span>"
-    )
+    return f'<span class="testspec-result-options" style="{_result_group_style()}">' + "".join(controls) + "</span>"
 
 
 def comment_control_html(field_name: str, label: str = "Comment") -> str:
@@ -157,7 +149,7 @@ def free_radio_control_html(
             f'value="{option_value}" aria-label="{escape(option, quote=True)}" '
             'style="appearance: auto; display: inline-block; flex: 0 0 auto; margin: 0; padding: 0;">'
             f'<span class="testspec-form-radio-label">{option_label}</span>'
-            '</label>'
+            "</label>"
         )
 
     return (
@@ -165,9 +157,7 @@ def free_radio_control_html(
         f'<div class="testspec-form-label" style="margin-bottom: 0.25em;">{escaped_label}:</div>'
         '<div class="testspec-form-radio-options" '
         'style="display: flex; flex-wrap: nowrap; width: 100%; align-items: center; '
-        'justify-content: space-between;">'
-        + "".join(controls)
-        + "</div></div>"
+        'justify-content: space-between;">' + "".join(controls) + "</div></div>"
     )
 
 
@@ -192,5 +182,5 @@ def free_comment_control_html(
         f'name="{escaped_name}" rows="{safe_rows}" '
         'style="appearance: auto; display: block; width: 100%; box-sizing: border-box; '
         'margin-top: 0.25em; font-family: inherit; font-size: inherit;"></textarea>'
-        '</div>'
+        "</div>"
     )

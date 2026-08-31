@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from typing import Any, Mapping
+from typing import Any
 
 STEP_RESULTS = {"passed", "failed", "na"}
 CASE_RESULTS = {"passed", "failure", "error", "skipped"}
@@ -104,9 +105,7 @@ def build_result(
         case_id = case.get("id")
         if not isinstance(case_id, str) or not case_id.strip():
             title = case.get("title") or f"case {index}"
-            raise ResultProcessingError(
-                f"test case {title!r} has no stable :id: and cannot be exported to JUnit"
-            )
+            raise ResultProcessingError(f"test case {title!r} has no stable :id: and cannot be exported to JUnit")
 
         step_results: list[StepResult] = []
         for step in case.get("steps", []):

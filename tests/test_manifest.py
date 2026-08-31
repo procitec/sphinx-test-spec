@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import pytest
 
-from sphinx_test_spec.manifest import ManifestError, with_spec_hash, validate_manifest
+from sphinx_test_spec.manifest import ManifestError, validate_manifest, with_spec_hash
 
 
 def _manifest():

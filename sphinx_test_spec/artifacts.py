@@ -65,9 +65,7 @@ def _validate_case_ids(cases: list[dict[str, Any]]) -> None:
 
         location = case.get("docname", "<unknown>")
         if case_id in seen:
-            raise ExtensionError(
-                f"duplicate test:case id '{case_id}' in '{location}' and '{seen[case_id]}'"
-            )
+            raise ExtensionError(f"duplicate test:case id '{case_id}' in '{location}' and '{seen[case_id]}'")
         seen[case_id] = location
 
 
@@ -94,7 +92,6 @@ def _manifest_payload(app: Sphinx) -> dict[str, Any]:
         "result_mode": app.config.testspec_result_mode,
         "cases": cases,
     }
-
 
 
 def build_manifest_content(app: Sphinx) -> dict[str, Any]:
