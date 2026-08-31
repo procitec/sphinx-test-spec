@@ -52,10 +52,12 @@ the global ``--pdf-forms`` option. If ``sphinx-simplepdf`` uses WeasyPrint's API
 interface, the same mechanism still works.
 
 For ``simplepdf`` form builds, ``sphinx-test-spec`` performs a small post-processing step on the generated PDF.
-WeasyPrint's radio widgets are converted into one conventional AcroForm radio group per action/reaction row. Each
-widget gets a complete vector appearance for both states: an empty circle for ``Off`` and a circle with an inner dot
-for the selected state. This avoids viewer-dependent live redraw behaviour and also gives printing a real appearance
-stream for unselected and selected buttons. The semantic field values remain ``passed``, ``failed`` and ``na``.
+WeasyPrint's radio widgets are converted into one conventional AcroForm radio group per action/reaction row.
+WeasyPrint already renders the empty radio outline as normal page content, so the annotation appearance deliberately
+does not draw the outer circle a second time: ``Off`` is transparent and the selected state adds only the inner dot.
+This avoids a double-circle effect while preserving printing and saved-state rendering. The semantic field values
+remain ``passed``, ``failed`` and ``na``. Firefox and Chromium/Chrome are the reference viewers for interactive form
+appearance; Okular may add its own visual overlay while its form-editing mode is enabled.
 
 Manifest
 --------

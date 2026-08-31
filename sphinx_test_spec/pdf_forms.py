@@ -71,23 +71,22 @@ def _circle_path(cx: float, cy: float, radius: float) -> str:
 
 
 def _radio_appearance_stream(width: float, height: float, selected: bool) -> DecodedStreamObject:
+    # WeasyPrint already renders the native radio outline as regular page
+    # content. The annotation appearance therefore only needs to add the
+    # selected dot. Drawing the outline again would produce a visible double
+    # circle in standards-compliant viewers such as Firefox/Chromium.
     size = min(width, height)
     cx = width / 2.0
     cy = height / 2.0
-    line_width = max(0.45, size * 0.075)
-    outer_radius = max(0.5, size * 0.36)
     inner_radius = max(0.3, size * 0.16)
 
-    commands = [
-        "q",
-        "0 0 0 RG",
-        "0 0 0 rg",
-        f"{line_width:.3f} w",
-        _circle_path(cx, cy, outer_radius),
-        "S",
-    ]
+    commands = ["q"]
     if selected:
-        commands.extend((_circle_path(cx, cy, inner_radius), "f"))
+        commands.extend((
+            "0 0 0 rg",
+            _circle_path(cx, cy, inner_radius),
+            "f",
+        ))
     commands.append("Q")
 
     stream = DecodedStreamObject()

@@ -5,7 +5,7 @@ Next
 ----
 
 - Add free ``test:choice`` and ``test:comment`` form directives for execution metadata and annotations.
-- Normalize WeasyPrint radio groups after ``simplepdf`` generation and provide complete Off/On appearance streams.
+- Normalize WeasyPrint radio groups after ``simplepdf`` generation and provide explicit radio-state appearances without redrawing WeasyPrint's native outline.
 - Add the standalone ``testspec-result`` PDF-to-JUnit/result-JSON converter.
 - Add compact/configurable result labels and a configurable per-case comment label.
 - Add ``pypdf`` as the runtime dependency for PDF result extraction.

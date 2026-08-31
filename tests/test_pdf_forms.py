@@ -117,11 +117,8 @@ def test_normalize_weasyprint_radio_structure_and_appearances(tmp_path):
         assert set(appearances.keys()) == {"/Off", expected_state}
         off_data = appearances["/Off"].get_object().get_data()
         on_data = appearances[expected_state].get_object().get_data()
-        assert off_data
-        assert on_data
-        assert b"\nS\n" in off_data
-        assert b"\nf\n" not in off_data
-        assert b"\nS\n" in on_data
+        assert off_data == b"q\nQ\n"
+        assert b"\nS\n" not in on_data
         assert b"\nf\n" in on_data
 
 
