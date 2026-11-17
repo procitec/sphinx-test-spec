@@ -1,6 +1,6 @@
 [project]
 name = "sphinx-test-spec"
-version = "26.1"
+version = "26.2.8"
 description = "Sphinx extension for defining manual test specifications"
 readme = "README.rst"
 requires-python = ">=3.11"
@@ -10,11 +10,14 @@ authors = [
   { name = "team procitec", email = "info@procitec.de" },
 ]
 keywords = ["sphinx", "documentation", "test-specification", "restructuredtext"]
+dependencies = [
+  "pypdf>=5.4",
+]
+
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Framework :: Sphinx :: Extension",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
@@ -26,6 +29,9 @@ classifiers = [
   "Topic :: Utilities",
 ]
 
+
+[project.scripts]
+testspec-result = "sphinx_test_spec.result_cli:main"
 
 [project.urls]
 Repository = "https://github.com/procitec/sphinx-test-spec"
@@ -52,7 +58,7 @@ docs = [
 ]
 
 [build-system]
-requires = ["uv_build>=0.11.8,<0.12"]
+requires = ["uv_build>=0.11.8,<0.13"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]

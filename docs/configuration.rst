@@ -35,3 +35,80 @@ This could be e.g. an empty checkbox symbol (e.g. unicode ballot box) to clarify
 Default is to use no symbol, just add an empty cell
 
 
+
+testspec_result_mode
+--------------------
+
+``testspec_result_mode`` controls the content of the last test action column.
+
+``symbol``
+    Keeps the existing behaviour and renders ``testspec_state_symbol``.
+
+``form``
+    Renders a compact radio-button group for ``passed``, ``failed`` and ``na`` for each action/reaction row.
+    The visible labels are rendered once in the result-column header; the rows contain only the three radio
+    buttons. It also adds one text comment field below each test case table. The generated HTML controls use
+    ``appearance: auto`` so that WeasyPrint can export them as AcroForm fields.
+
+Default is ``symbol``.
+
+
+testspec_result_labels
+----------------------
+
+``testspec_result_labels`` controls the three visible labels in the result-column header. The action/reaction
+rows contain only the corresponding radio buttons. The underlying PDF values always remain ``passed``,
+``failed`` and ``na`` so that result extraction is language-independent.
+
+The compact default is::
+
+    testspec_result_labels = {
+        "passed": "✓",
+        "failed": "✗",
+        "na": "–",
+    }
+
+Text labels such as ``OK``, ``NOK`` and ``N/A`` can be used instead. The generated header labels and the matching
+radio-button wrappers have the CSS classes ``testspec-result-passed``, ``testspec-result-failed`` and
+``testspec-result-na`` for project-specific styling.
+
+In form mode the fourth value of ``testspec_header`` is an optional caption placed before the three labels. For
+the narrowest layout use an empty value, for example::
+
+    testspec_header = ["Nr.", "Aktion", "Reaktion", ""]
+
+This renders only ``✓  ✗  –`` in the final table header. Using ``"Result"`` as the fourth header renders the
+caption followed by the three configured labels.
+
+
+testspec_comment_label
+----------------------
+
+``testspec_comment_label`` sets the caption of the single comment field below each test case. Default is
+``Comment``. For example::
+
+    testspec_comment_label = "Anmerkung"
+
+
+testspec_namespace
+------------------
+
+``testspec_namespace`` defines the build-time part of the external test id, for example
+``category.appname``. The stable ``:id:`` of a test case is appended to it in the manifest.
+A later result-processing step can prepend an execution-specific prefix such as ``linux`` or ``windows``.
+
+Example final ids are ``linux.category.appname.startup`` and ``windows.category.appname.startup``.
+
+
+testspec_document_id
+--------------------
+
+``testspec_document_id`` optionally defines a stable id for the generated test specification document.
+If it is empty, ``master_doc`` is used.
+
+
+testspec_attach_manifest
+------------------------
+
+If ``True`` (default), the HTML master document contains a ``link rel="attachment"`` reference to
+``testspec-manifest.json``. WeasyPrint can therefore embed the manifest directly into the generated PDF.

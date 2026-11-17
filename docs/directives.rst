@@ -16,6 +16,12 @@ Directives
 
     .. rubric:: Options
 
+    .. rst:directive:option:: id
+        :type: str
+
+        Stable identifier of the test case. It is used by ``testspec-manifest.json`` and can be
+        combined with ``testspec_namespace`` and a later execution prefix to build the final test id.
+
     .. rst:directive:option:: class
         :type: str
 
@@ -77,3 +83,65 @@ Directives
         :type: str
 
         The class name for html output to use in css files. This will be appended to the directive classes.
+
+.. rst:directive:: test:choice
+
+    Adds a free single-choice group to the document. The group is independent of
+    ``test:case`` results and is useful for execution metadata such as the target
+    operating system, hardware variant, or test environment.
+
+    The directive argument is used as the visible label. Each non-empty content
+    line defines one choice. The choices are distributed evenly across one row.
+
+    .. code-block:: rst
+
+        .. test:choice:: Betriebssystem
+           :id: operating-system
+
+           Ubuntu
+           RedHat
+           Windows
+
+    ``:id:`` is required and is used to create a stable PDF form field name.
+
+    .. rubric:: Options
+
+    .. rst:directive:option:: id
+        :type: str
+
+        Required stable identifier of the form field.
+
+    .. rst:directive:option:: class
+        :type: str
+
+        Additional CSS class for the wrapper element.
+
+
+.. rst:directive:: test:comment
+
+    Adds a free multiline annotation field that is independent of a
+    ``test:case``. The directive argument is used as the visible label.
+
+    .. code-block:: rst
+
+        .. test:comment:: Allgemeine Anmerkungen
+           :id: general-notes
+           :rows: 4
+
+    .. rubric:: Options
+
+    .. rst:directive:option:: id
+        :type: str
+
+        Required stable identifier of the form field.
+
+    .. rst:directive:option:: rows
+        :type: int
+        :default: 4
+
+        Number of visible text rows.
+
+    .. rst:directive:option:: class
+        :type: str
+
+        Additional CSS class for the wrapper element.
