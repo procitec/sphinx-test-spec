@@ -55,7 +55,6 @@ def _appearance_size(widget: DictionaryObject) -> tuple[float, float]:
     return 8.0, 8.0
 
 
-
 def _widget_appearance_bounds(widget: DictionaryObject) -> tuple[float, float]:
     """Make room for the native circle, which exceeds WeasyPrint's /Rect."""
     rect = widget.get("/Rect")

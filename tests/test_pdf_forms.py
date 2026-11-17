@@ -131,7 +131,7 @@ def test_normalize_weasyprint_radio_structure_and_appearances(tmp_path):
         assert on_data.count(b"\nS\n") == 1
         assert off_data.count(b"\nf\n") == 1  # White circle only.
         assert on_data.count(b"\nf\n") == 2  # White circle and selected dot.
-        assert on_data.startswith(off_data[:off_data.index(b"\nQ\n")])
+        assert on_data.startswith(off_data[: off_data.index(b"\nQ\n")])
 
 
 def test_normalize_recovers_selected_widget_state(tmp_path):
