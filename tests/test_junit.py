@@ -43,7 +43,7 @@ def test_junit_contains_aggregated_cases():
     assert 'tests="2"' in xml
     assert 'failures="1"' in xml
     assert 'skipped="1"' in xml
-    assert 'name="linux.category.appname.startup"' in xml
+    assert 'name="startup"' in xml
     assert 'classname="linux.category.appname"' in xml
     assert "Unexpected dialog" in xml
     assert "Manual test case not executed" in xml
