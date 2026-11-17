@@ -16,4 +16,5 @@ def test_case_jinja(test_app):
     html = Path(app.outdir, "index.html").read_text(encoding="utf-8")
 
     assert ">print<" in html
-    assert ">&quot;this is my code&quot;<" in html
+    # assert ">&quot;this is my code&quot;<" in html
+    assert '>"this is my code"' in html

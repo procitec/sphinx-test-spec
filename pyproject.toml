@@ -53,8 +53,8 @@ lint = [
   "ruff>=0.13",
 ]
 docs = [
-  "sphinx>=8.2,<9",
-  "sphinx-immaterial>=0.13,<0.14",
+  "sphinx>=8.2",
+  "sphinx-immaterial>=0.13",
 ]
 
 [build-system]
