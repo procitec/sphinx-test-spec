@@ -47,9 +47,7 @@ def resolve_manifest_texts(app, doctree: nodes.document) -> None:
     test_domain = app.env.get_domain("test")
     cases = [case for case in test_domain.data["manifest_cases"] if case.get("docname") == app.env.docname]
     sections = [
-        section
-        for section in doctree.findall(nodes.section)
-        if "test-case-section" in section.get("classes", [])
+        section for section in doctree.findall(nodes.section) if "test-case-section" in section.get("classes", [])
     ]
 
     if len(cases) != len(sections):
