@@ -66,7 +66,10 @@ Manifest
 --------
 
 ``testspec-manifest.json`` contains the document identity, specification hash, build-time namespace, stable case
-ids, the ordered action/reaction pairs and their technical PDF form-field names. If ``testspec_attach_manifest``
+ids, the ordered action/reaction pairs and their technical PDF form-field names. Optional ``:id:``
+values on ``test:action`` and ``test:reaction`` are included as ``action_id`` and ``reaction_id``
+for each step. RST substitutions, including definitions from ``rst_prolog``, are expanded to plain
+text in case titles and action/reaction descriptions. If ``testspec_attach_manifest``
 is enabled (default), the HTML master page references this file as an attachment so WeasyPrint embeds it in the
 PDF.
 
@@ -89,6 +92,11 @@ The normalized intermediate result can additionally be written as JSON::
         --execution-prefix linux \
         --junit result.xml \
         --result-json result.json
+
+The result JSON adds the execution results to the test case and step information
+from the manifest. Optional ``action_id`` and ``reaction_id`` fields are carried
+over into their corresponding steps. If a step has no such ID, the field is
+omitted. The IDs do not change the test case identity or JUnit aggregation.
 
 Normally the embedded ``testspec-manifest.json`` is used. An external manifest can be supplied as a fallback or
 for additional verification::

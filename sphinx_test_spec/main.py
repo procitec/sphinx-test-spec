@@ -4,6 +4,7 @@ from html import escape
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as package_version
 
+from docutils import nodes
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.util import logging
 
@@ -33,6 +34,65 @@ def rst_testspec_jinja(app, docname, source):
     src = source[0]
     rendered = app.builder.templates.render_string(src, app.config.testspec_context)
     source[0] = rendered
+
+
+def resolve_manifest_texts(app, doctree: nodes.document) -> None:
+    """Store the resolved RST text, not the unresolved directive input.
+
+    Substitution references (including those declared in ``rst_prolog``) are
+    resolved by docutils after directive ``run()`` methods finish. At the
+    ``doctree-read`` event, the parsed case titles and table entries contain
+    their final textual values for the execution manifest.
+    """
+    test_domain = app.env.get_domain("test")
+    cases = [case for case in test_domain.data["manifest_cases"] if case.get("docname") == app.env.docname]
+    sections = [
+        section
+        for section in doctree.findall(nodes.section)
+        if "test-case-section" in section.get("classes", [])
+    ]
+
+    if len(cases) != len(sections):
+        raise ExtensionError(f"could not match test cases to doctree sections in '{app.env.docname}'")
+
+    for case, section in zip(cases, sections, strict=True):
+        title = next((child for child in section.children if isinstance(child, nodes.title)), None)
+        if title is not None:
+            case["title"] = title.astext()
+
+        table = next(
+            (
+                child
+                for child in section.children
+                if isinstance(child, nodes.table) and "test-case" in child.get("classes", [])
+            ),
+            None,
+        )
+        if table is None:
+            raise ExtensionError(f"test:case '{case['title']}' is missing its action table")
+
+        rows = [row for row in table.findall(nodes.row) if "test-action" in row.get("classes", [])]
+        if len(case["steps"]) != len(rows):
+            raise ExtensionError(f"could not match test steps to table rows in test:case '{case['title']}'")
+
+        for step, row in zip(case["steps"], rows, strict=True):
+            # A test-action row consists of number, action, reaction and result.
+            step["action"] = row[1].astext()
+            step["reaction"] = row[2].astext()
+
+            # Both IDs are stored on the actual doctree nodes by their
+            # directives, so they remain bound to the correct step even if
+            # parsing state is reused by nested directives.
+            action_id = row.get("testspec_action_id")
+            reaction_id = row[2].get("testspec_reaction_id")
+            if action_id:
+                step["action_id"] = action_id
+            else:
+                step.pop("action_id", None)
+            if reaction_id:
+                step["reaction_id"] = reaction_id
+            else:
+                step.pop("reaction_id", None)
 
 
 def validate_testspec_config(app) -> None:
@@ -108,6 +168,7 @@ def setup(app):
 
     app.connect("builder-inited", validate_testspec_config)
     app.connect("source-read", rst_testspec_jinja)
+    app.connect("doctree-read", resolve_manifest_texts)
     app.connect("html-page-context", add_manifest_attachment_link)
     app.connect("build-finished", finalize_testspec_build)
 

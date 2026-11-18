@@ -819,7 +819,7 @@ wheels = [
 
 [[package]]
 name = "sphinx-test-spec"
-version = "26.2.8"
+version = "26.2.9"
 source = { editable = "." }
 dependencies = [
     { name = "pypdf" },

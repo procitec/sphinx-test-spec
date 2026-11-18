@@ -1,6 +1,14 @@
 Changelog
 =========
 
+26.2.9
+----------
+
+- Preserve optional ``:id:`` values from ``test:action`` and ``test:reaction`` as
+  ``action_id`` and ``reaction_id`` in the manifest, including in the specification hash.
+- Resolve RST substitutions (including ``rst_prolog`` definitions) before storing
+  case titles and action/reaction text in the JSON manifest.
+
 26.2.8
 ------
 
