@@ -43,6 +43,14 @@ Directives
         The class name for html output to use in css files. This will be appended to the directive classes.
 
 
+    .. rst:directive:option:: id
+        :type: str
+
+        Optional stable identifier for this action. The JSON manifest stores it as
+        ``action_id`` in the corresponding step. It can be reused across cases to
+        identify identical actions and is also used by ``:test:action:`` references.
+
+
 .. rst:directive:: :test:reaction
 
     A test reaction description is added to the output.
@@ -65,6 +73,14 @@ Directives
         :type: str
         
         The class name for html output to use in css files. This will be appended to the directive classes.
+
+
+    .. rst:directive:option:: id
+        :type: str
+
+        Optional stable identifier for this reaction. The JSON manifest stores it
+        as ``reaction_id`` in the corresponding step; the identifier may be reused
+        for equivalent reactions in different test cases.
 
 
 .. rst:directive:: :test:filelist

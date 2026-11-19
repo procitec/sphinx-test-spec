@@ -243,6 +243,13 @@ class ActionDirective(ObjectDescription):
 
         node_row = nodes.row(classes=[_class_test_action_row])
 
+        # Keep the author's :id: on the doctree node as well as the
+        # cross-reference anchor. The manifest is assembled from this doctree
+        # in ``doctree-read`` (after substitutions have been resolved).
+        # In particular, it must not rely on the transient parser state.
+        if action_id := self.options.get("id"):
+            node_row["testspec_action_id"] = action_id
+
         if "id" in self.options:
             action_anchor = f"test-action-{_state.case_id}.{self.options['id']}"
             # action_anchor = f"test-action-{self.options['id']}"
@@ -290,14 +297,13 @@ class ActionDirective(ObjectDescription):
         _state.node_tbody += node_row
 
         if _state.current_case is not None:
-            _state.current_case["steps"].append(
-                {
-                    "number": step_number,
-                    "action": node_action.astext(),
-                    "reaction": _state.node_reaction.astext() if _state.node_reaction is not None else "",
-                    "result_field": field_name,
-                }
-            )
+            step_record = {
+                "number": step_number,
+                "action": node_action.astext(),
+                "reaction": _state.node_reaction.astext() if _state.node_reaction is not None else "",
+                "result_field": field_name,
+            }
+            _state.current_case["steps"].append(step_record)
 
         if "id" in self.options:
             test_domain.add_action(_state.case_id, self.options["id"], action_id_text)
@@ -311,6 +317,7 @@ class ReactionDirective(ObjectDescription):
     has_content = True
     required_arguments = 0
     option_spec = {
+        "id": directives.unchanged,
         "class": directives.unchanged,
         #        "colspan": int,
         #        "rowspan": int,
@@ -335,6 +342,8 @@ class ReactionDirective(ObjectDescription):
         # the reaction directive could occur only onces or never in an action
         if _state.node_reaction is None:
             node = nodes.entry(**kwargs)
+            if reaction_id := self.options.get("id"):
+                node["testspec_reaction_id"] = reaction_id
             # node = nodes.entry(classes=classes, ids=ids )
             self.state.nested_parse(self.content, self.content_offset, node)
 

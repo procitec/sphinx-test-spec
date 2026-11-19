@@ -33,3 +33,20 @@ def test_manifest_hash_detects_semantic_changes():
     manifest["cases"][0]["steps"][0]["reaction"] = "Different"
     with pytest.raises(ManifestError, match="spec_hash"):
         validate_manifest(manifest)
+
+
+def test_manifest_hash_detects_step_identifier_changes():
+    manifest = _manifest()
+    manifest["cases"][0]["steps"][0].update(action_id="ACTION_1", reaction_id="REACTION_1")
+    manifest = with_spec_hash(manifest)
+    validate_manifest(manifest)
+
+    changed = deepcopy(manifest)
+    changed["cases"][0]["steps"][0]["reaction_id"] = "REACTION_2"
+    with pytest.raises(ManifestError, match="spec_hash"):
+        validate_manifest(changed)
+
+    changed = deepcopy(manifest)
+    changed["cases"][0]["steps"][0]["action_id"] = "ACTION_2"
+    with pytest.raises(ManifestError, match="spec_hash"):
+        validate_manifest(changed)

@@ -18,7 +18,8 @@ The build creates a folder called **testspec** with these files inside the given
     output directory is removed when the new resource artifact is written.
 
 ``testspec-manifest.json``
-    Test document identity, build-time namespace, test case ids, linear action/reaction steps, PDF form field
+    Test document identity, build-time namespace, test case ids, linear action/reaction steps (including
+    optional action and reaction ids, and text with RST substitutions expanded), PDF form field
     names and a SHA-256 specification hash.
 
 Usage

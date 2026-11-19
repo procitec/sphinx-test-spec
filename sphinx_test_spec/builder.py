@@ -33,10 +33,6 @@ class TestSpecBuilder(Builder):
     ) -> None:
         return
 
-    def finish(self) -> None:
-        write_testspec_resources(self.app, self.outdir)
-        write_testspec_manifest(self.app, self.outdir)
-
     def get_target_uri(self, _docname: str, _typ: str | None = None) -> str:
         # only needed if the write phase is run
         return ""
@@ -62,10 +58,8 @@ def build_testspec_artifacts(app: Sphinx, exception: Exception | None) -> None:
     if exception is not None:
         return
 
-    # The testspec builder already writes both artifacts in finish().
-    if isinstance(app.builder, TestSpecBuilder):
-        return
-
+    # All builders, including ``testspec``, publish artifacts through
+    # ``build-finished``. This avoids the deprecated Builder.app property.
     write_testspec_resources(app, app.outdir)
     write_testspec_manifest(app, app.outdir)
 

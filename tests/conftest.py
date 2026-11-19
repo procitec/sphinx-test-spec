@@ -18,20 +18,20 @@ def copy_srcdir_to_tmpdir(srcdir: str | Path, tmp: str | Path) -> Path:
 
 
 @pytest.fixture(scope="function")
-def test_app(make_app, sphinx_test_tempdir, request):
+def test_app(make_app, tmp_path, request):
     # get builder parameters from test case
     builder_params = request.param
 
-    # copy test srcdir to test temporary directory sphinx_test_tempdir
+    # tmp_path is unique for each test invocation, including parametrized builders.
     srcdir = builder_params.get("srcdir", None)
-    src_dir = copy_srcdir_to_tmpdir(srcdir, sphinx_test_tempdir)
+    src_dir = copy_srcdir_to_tmpdir(srcdir, tmp_path)
 
-    # copy external test dir to test temporary directory sphinx_test_tempdir
+    # copy external test data into the same isolated directory
     external_data_dir = builder_params.get("datadir", None)
     if external_data_dir is not None:
-        copy_srcdir_to_tmpdir(external_data_dir, sphinx_test_tempdir)
+        copy_srcdir_to_tmpdir(external_data_dir, tmp_path)
 
-    # return sphinx.testing fixture make_app and new srcdir which in sphinx_test_tempdir
+    # return Sphinx test application using the isolated source directory
     app = make_app(
         buildername=builder_params.get("buildername", "html"),
         srcdir=src_dir,
@@ -49,5 +49,4 @@ def test_app(make_app, sphinx_test_tempdir, request):
         yield app
     finally:
         pass
-        # cleanup test temporary directory
-        # shutil.rmtree(sphinx_test_tempdir, True)
+        # pytest cleans up tmp_path; no explicit removal is needed.

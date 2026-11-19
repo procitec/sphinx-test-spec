@@ -20,6 +20,8 @@ class StepResult:
     reaction: str
     result_field: str
     result: str | None
+    action_id: str | None = None
+    reaction_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -46,6 +48,14 @@ class TestSpecResult:
 
     def to_dict(self) -> dict[str, Any]:
         counts = self.counts()
+        cases = [asdict(case) for case in self.cases]
+        for case in cases:
+            for step in case["steps"]:
+                # Optional identifiers are omitted, just as in the manifest.
+                # This keeps existing result JSON without step ids unchanged.
+                for key in ("action_id", "reaction_id"):
+                    if step[key] is None:
+                        del step[key]
         return {
             "schema_version": 1,
             "document": self.document,
@@ -58,7 +68,7 @@ class TestSpecResult:
                 "errors": counts["error"],
                 "skipped": counts["skipped"],
             },
-            "cases": [asdict(case) for case in self.cases],
+            "cases": cases,
         }
 
 
@@ -122,6 +132,8 @@ def build_result(
                     reaction=str(step.get("reaction", "")),
                     result_field=field_name,
                     result=result,
+                    action_id=step.get("action_id") or None,
+                    reaction_id=step.get("reaction_id") or None,
                 )
             )
 

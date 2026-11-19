@@ -23,9 +23,12 @@ def semantic_hash_payload(payload: dict[str, Any]) -> dict[str, Any]:
                 "title": case.get("title"),
                 "steps": [
                     {
-                        "number": step.get("number"),
-                        "action": step.get("action"),
-                        "reaction": step.get("reaction"),
+                        **{
+                            "number": step.get("number"),
+                            "action": step.get("action"),
+                            "reaction": step.get("reaction"),
+                        },
+                        **{key: step[key] for key in ("action_id", "reaction_id") if step.get(key)},
                     }
                     for step in case.get("steps", [])
                 ],
