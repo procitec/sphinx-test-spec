@@ -18,6 +18,7 @@ def test_manifest_contains_step_ids_and_resolved_substitutions(test_app):
     app = test_app
     app.build()
 
+    assert Path(app.outdir, "testspec-resources.json").is_file()
     manifest = json.loads(Path(app.outdir, "testspec-manifest.json").read_text(encoding="utf-8"))
     validate_manifest(manifest)
 
